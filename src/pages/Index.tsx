@@ -22,7 +22,7 @@ const Index = () => {
           </p>
           <Button
             size="lg"
-            onClick={() => navigate("/diagnostico")}
+            onClick={() => navigate("/inscricao")}
             className="text-base px-8 py-6"
           >
             Participar do Programa Piloto
@@ -90,7 +90,7 @@ const Index = () => {
           <Button
             size="lg"
             variant="secondary"
-            onClick={() => navigate("/diagnostico")}
+            onClick={() => navigate("/inscricao")}
             className="text-base px-8 py-6 hover:scale-105 transition-transform font-semibold"
           >
             Começar Agora
