@@ -5,18 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { DiagnosticoResultados as DiagnosticoResultadosType, Conselheiro, DiagnosticoRespostas } from "@/types/diagnostico";
 import { encontrarMelhorConselheiro } from "@/lib/matching";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Calendar, Lightbulb, Target, TrendingUp, User } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar } from "lucide-react";
 
 // Mock de conselheiros - em produção viria do Supabase
 const mockConselheiros: Conselheiro[] = [
   {
     id: "1",
-    nome: "Ana Silva",
-    foto_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
+    nome: "Camila Alves",
+    foto_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Camila",
     areas: ["tecnologia", "gestao"],
     nivel_experiencia: "avancado",
     estilo: "pratico",
@@ -70,7 +69,7 @@ const DiagnosticoResultados = () => {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -85,215 +84,133 @@ const DiagnosticoResultados = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold text-foreground mb-2">Seu Diagnóstico de Carreira</h1>
-          <p className="text-muted-foreground mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2 leading-[1.1] tracking-[-0.01em]">
+            Seu Perfil de Viajante
+          </h1>
+          <p className="text-lg text-[#666666] mb-12 leading-[1.5]">
             Aqui está uma visão completa do seu perfil e dos próximos passos
           </p>
 
-          {/* Arquétipo */}
-          <Card className="mb-8 shadow-md">
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="text-6xl">{resultados.arquetipo.icone}</div>
-                <div>
-                  <CardTitle className="text-2xl">{resultados.arquetipo.nome}</CardTitle>
-                  <CardDescription className="text-base mt-2">
+          {/* Layout de Duas Colunas */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Coluna Esquerda: Card de Arquétipo */}
+            <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-2 border-accent bg-card h-fit">
+              <CardHeader className="p-8">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-start to-primary-end rounded-2xl flex items-center justify-center text-4xl">
+                    {resultados.arquetipo.icone}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-[#666666] mb-2 font-semibold uppercase tracking-wide">
+                    Seu Arquétipo de Carreira é:
+                  </p>
+                  <CardTitle className="text-3xl font-bold leading-[1.1] text-foreground mb-4">
+                    {resultados.arquetipo.nome}
+                  </CardTitle>
+                  <CardDescription className="text-base text-[#666666] leading-[1.5]">
                     {resultados.arquetipo.descricao}
                   </CardDescription>
                 </div>
-              </div>
-            </CardHeader>
-          </Card>
-
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
-            {/* Forças */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Suas Forças
-                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {resultados.forcas.map((forca, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">{forca.nome}</span>
-                      <span className="text-sm text-muted-foreground">{forca.valor}%</span>
-                    </div>
-                    <Progress value={forca.valor} className="h-2" />
+              <CardContent className="px-8 pb-8">
+                <div className="bg-[#F3E8FF] border-2 border-accent rounded-xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles className="h-5 w-5 text-accent" />
+                    <h3 className="font-bold text-foreground">Seus Próximos Passos</h3>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Lacunas */}
-            <Card className="shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  Áreas para Desenvolver
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {resultados.lacunas.map((lacuna, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">{lacuna.nome}</span>
-                      <span className="text-sm text-muted-foreground">{lacuna.valor}%</span>
-                    </div>
-                    <Progress value={lacuna.valor} className="h-2" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Trilhas Sugeridas */}
-          <Card className="mb-8 shadow-md">
-            <CardHeader>
-              <CardTitle>Trilhas Sugeridas para Você</CardTitle>
-              <CardDescription>
-                Caminhos práticos para alcançar seus objetivos
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                {resultados.trilhas.map((trilha, index) => (
-                  <Card key={index} className="border-2 hover:border-primary transition-colors">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{trilha.nome}</CardTitle>
-                      <CardDescription>{trilha.descricao}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge variant="secondary">{trilha.duracao}</Badge>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Cronograma */}
-          <Card className="mb-8 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Cronograma de Evolução (6 meses)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {resultados.cronograma.map((marco, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                        {marco.mes}
-                      </div>
-                      {index < resultados.cronograma.length - 1 && (
-                        <div className="w-0.5 flex-1 bg-border mt-2" />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-6">
-                      <h4 className="font-semibold mb-1">{marco.titulo}</h4>
-                      <p className="text-sm text-muted-foreground">{marco.descricao}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Dicas */}
-          <Card className="mb-8 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5 text-primary" />
-                Dicas para o Sucesso
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {resultados.dicas.map((dica, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                    <span className="text-sm">{dica}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Conselheiro Match */}
-          {melhorMatch && (
-            <Card className="shadow-lg border-2 border-primary">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
-                  Seu Conselheiro Compatível
-                </CardTitle>
-                <CardDescription>
-                  Encontramos alguém que pode te ajudar nessa jornada
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:flex-row gap-6 items-start">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={melhorMatch.conselheiro.foto_url} />
-                    <AvatarFallback>{melhorMatch.conselheiro.nome[0]}</AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-semibold mb-2">{melhorMatch.conselheiro.nome}</h3>
-                    
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium">Compatibilidade:</span>
-                        <Badge variant="default" className="text-lg">
-                          {melhorMatch.score}%
-                        </Badge>
-                      </div>
-                      <Progress value={melhorMatch.score} className="h-2" />
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                      <div>
-                        <span className="text-sm font-medium text-muted-foreground">Áreas principais:</span>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {melhorMatch.conselheiro.areas.map((area) => (
-                            <Badge key={area} variant="secondary" className="capitalize">
-                              {area}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-sm font-medium text-muted-foreground">Estilo:</span>
-                        <Badge className="ml-2 capitalize">{melhorMatch.conselheiro.estilo}</Badge>
-                      </div>
-
-                      <div>
-                        <span className="text-sm font-medium text-muted-foreground">Formatos:</span>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {melhorMatch.conselheiro.formato.map((formato) => (
-                            <Badge key={formato} variant="outline">
-                              {formato}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Button onClick={handleAgendarConversa} size="lg" className="w-full md:w-auto">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Agendar Conversa
-                    </Button>
-                  </div>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      <span className="text-sm text-foreground">Explorar 3-5 caminhos de carreira alinhados ao seu perfil</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      <span className="text-sm text-foreground">Desenvolver habilidades prioritárias identificadas</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      <span className="text-sm text-foreground">Conectar-se com profissionais de referência</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                      <span className="text-sm text-foreground">Construir um plano de ação estruturado de 6 meses</span>
+                    </li>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
-          )}
+
+            {/* Coluna Direita: Card de Match com Conselheiro */}
+            {melhorMatch && (
+              <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-2 border-[hsl(145,63%,49%)] bg-card h-fit">
+                <CardHeader className="p-8 pb-6">
+                  <div className="text-center mb-6">
+                    <p className="text-sm text-[#666666] mb-2 font-semibold uppercase tracking-wide">
+                      Encontramos um Match para Você!
+                    </p>
+                    <CardTitle className="text-2xl font-bold leading-[1.1] text-foreground">
+                      {melhorMatch.conselheiro.nome}
+                    </CardTitle>
+                  </div>
+                  <div className="flex justify-center mb-6">
+                    <Avatar className="h-32 w-32 border-4 border-[hsl(145,63%,49%)]">
+                      <AvatarImage src={melhorMatch.conselheiro.foto_url} />
+                      <AvatarFallback className="text-2xl">
+                        {melhorMatch.conselheiro.nome[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-8 pb-8">
+                  <p className="text-sm text-[#666666] leading-[1.5] mb-6 text-center">
+                    Profissional experiente em {melhorMatch.conselheiro.areas.join(" e ")}, pronto para te guiar em sua jornada de transição de carreira.
+                  </p>
+
+                  <div className="space-y-4 mb-6">
+                    <div className="bg-accent/5 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <span className="text-sm font-semibold text-foreground">Especialidade</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 ml-4">
+                        {melhorMatch.conselheiro.areas.map((area) => (
+                          <Badge key={area} variant="secondary" className="capitalize bg-accent/10 text-accent border-0">
+                            {area}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-accent/5 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <span className="text-sm font-semibold text-foreground">Estilo</span>
+                      </div>
+                      <p className="text-sm text-foreground ml-4 capitalize">{melhorMatch.conselheiro.estilo}/direto</p>
+                    </div>
+
+                    <div className="bg-accent/5 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <span className="text-sm font-semibold text-foreground">Formato Preferido</span>
+                      </div>
+                      <p className="text-sm text-foreground ml-4">{melhorMatch.conselheiro.formato[0]}</p>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleAgendarConversa} 
+                    size="lg" 
+                    className="w-full bg-[hsl(145,63%,49%)] hover:bg-[hsl(145,63%,42%)] text-white"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Agendar Conversa
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </motion.div>
       </div>
     </div>

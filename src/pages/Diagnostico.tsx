@@ -76,15 +76,17 @@ const Diagnostico = () => {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Diagnóstico de Carreira</h1>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <Home className="h-5 w-5" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-6"
+        >
+          <Home className="mr-2 h-4 w-4" />
+          Voltar
+        </Button>
 
-        <Card className="shadow-lg">
-          <CardHeader>
+        <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0 bg-card">
+          <CardHeader className="p-8 pb-6">
             <ProgressBar currentStep={step} totalSteps={TOTAL_STEPS} />
           </CardHeader>
           <CardContent className="px-8 pb-8">
@@ -132,8 +134,8 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Quais áreas despertam seu interesse?</CardTitle>
-                  <CardDescription className="mb-6">
+                  <CardTitle className="mb-2 text-foreground">Quais áreas de interesse mais te atraem?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
                     Selecione todas as áreas que você gostaria de explorar
                   </CardDescription>
                   <div className="space-y-4">
@@ -174,8 +176,8 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Qual é o seu nível atual de experiência?</CardTitle>
-                  <CardDescription className="mb-6">
+                  <CardTitle className="mb-2 text-foreground">Qual seu nível atual de experiência?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
                     Isso nos ajuda a personalizar as recomendações
                   </CardDescription>
                   <RadioGroup
@@ -207,8 +209,8 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Quais são suas maiores dúvidas?</CardTitle>
-                  <CardDescription className="mb-6">
+                  <CardTitle className="mb-2 text-foreground">Quais suas maiores dúvidas ou desafios atuais?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
                     Selecione os temas nos quais você precisa de mais orientação
                   </CardDescription>
                   <div className="space-y-4">
@@ -248,8 +250,8 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Que tipo de apoio você prefere?</CardTitle>
-                  <CardDescription className="mb-6">
+                  <CardTitle className="mb-2 text-foreground">Qual tipo de apoio você prefere neste momento?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
                     Selecione os formatos que fazem mais sentido para você
                   </CardDescription>
                   <div className="space-y-4">
@@ -288,8 +290,8 @@ const Diagnostico = () => {
                   isLastStep
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Qual estilo de conselheiro combina mais com você?</CardTitle>
-                  <CardDescription className="mb-6">
+                  <CardTitle className="mb-2 text-foreground">Qual estilo de conselheiro(a) você prefere?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
                     Escolha o perfil que você acredita que vai te ajudar melhor
                   </CardDescription>
                   <RadioGroup

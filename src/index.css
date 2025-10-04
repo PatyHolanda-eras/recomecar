@@ -37,6 +37,10 @@ All colors MUST be HSL.
     --accent: 270 100% 65%;
     --accent-foreground: 0 0% 100%;
 
+    /* Success/Match (NOVO) */
+    --success: 145 63% 49%;
+    --success-foreground: 0 0% 100%;
+
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
