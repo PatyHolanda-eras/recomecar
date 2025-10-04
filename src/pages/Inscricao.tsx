@@ -44,7 +44,7 @@ const Inscricao = () => {
                 <Compass className="h-8 w-8 text-white" />
               </div>
               <CardTitle id="viajante-title" className="text-2xl font-bold leading-[1.1] text-foreground mb-2">
-                🧭 Sou Viajante
+                Sou Viajante
               </CardTitle>
               <p className="text-sm text-[#666666] leading-[1.5] mb-4 line-clamp-2">
                 Estou em transição de carreira ou quero evoluir na carreira atual e, quero clareza prática sobre meus próximos passos.
@@ -77,7 +77,7 @@ const Inscricao = () => {
                 <MessageCircle className="h-8 w-8 text-white" />
               </div>
               <CardTitle id="conselheiro-title" className="text-2xl font-bold leading-[1.1] text-foreground mb-2">
-                💬 Sou Conselheiro
+                Sou Conselheiro
               </CardTitle>
               <p className="text-sm text-[#666666] leading-[1.5] mb-4 line-clamp-2">
                 Profissional com experiência que gostaria de orientar pessoas em transição de carreira ou que querem dar o próximo passo, através de um direcionamento prático.
