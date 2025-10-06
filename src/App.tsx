@@ -14,26 +14,28 @@ import ConselheiroResultados from "./pages/ConselheiroResultados";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/inscricao" element={<Inscricao />} />
-          <Route path="/viajante-cadastro" element={<ViajanteCadastro />} />
-          <Route path="/diagnostico" element={<Diagnostico />} />
-          <Route path="/diagnostico/resultados" element={<DiagnosticoResultados />} />
-          <Route path="/conselheiro/perfil" element={<ConselheiroPerfil />} />
-          <Route path="/conselheiro-resultados" element={<ConselheiroResultados />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/inscricao" element={<Inscricao />} />
+            <Route path="/viajante-cadastro" element={<ViajanteCadastro />} />
+            <Route path="/diagnostico" element={<Diagnostico />} />
+            <Route path="/diagnostico/resultados" element={<DiagnosticoResultados />} />
+            <Route path="/conselheiro/perfil" element={<ConselheiroPerfil />} />
+            <Route path="/conselheiro-resultados" element={<ConselheiroResultados />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
