@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,10 +12,16 @@ import Diagnostico from "./pages/Diagnostico";
 import DiagnosticoResultados from "./pages/DiagnosticoResultados";
 import ConselheiroPerfil from "./pages/ConselheiroPerfil";
 import ConselheiroResultados from "./pages/ConselheiroResultados";
+import { cleanupOldData } from "@/lib/storageCleanup";
 
 const queryClient = new QueryClient();
 
 function App() {
+  // Clean up old data on app initialization
+  useEffect(() => {
+    cleanupOldData();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
