@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Star, AlertCircle, Target, Users, Compass, TrendingUp, Brain, Map, Zap, BookOpen, Heart, Check, User, Briefcase, Mail, Phone, Instagram, Linkedin, Twitter } from "lucide-react";
+import { LeadCaptureForm } from "@/components/LeadCaptureForm";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [showLeadForm, setShowLeadForm] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -544,7 +548,7 @@ const Index = () => {
               <div className="grid md:grid-cols-2 gap-4 mb-8">
                 <Card 
                   className="cursor-pointer hover:shadow-md transition-all border-2 border-primary bg-primary-lighter"
-                  onClick={() => navigate("/inscricao")}
+                  onClick={() => setShowLeadForm(true)}
                 >
                   <CardContent className="p-6 text-center">
                     <User className="h-8 w-8 mx-auto mb-3 text-primary" />
@@ -557,7 +561,7 @@ const Index = () => {
 
                 <Card 
                   className="cursor-pointer hover:shadow-md transition-all border-2 border-border"
-                  onClick={() => navigate("/inscricao")}
+                  onClick={() => setShowLeadForm(true)}
                 >
                   <CardContent className="p-6 text-center">
                     <Briefcase className="h-8 w-8 mx-auto mb-3 text-foreground" />
@@ -571,7 +575,7 @@ const Index = () => {
 
               <Button
                 size="lg"
-                onClick={() => navigate("/inscricao")}
+                onClick={() => setShowLeadForm(true)}
                 className="w-full"
               >
                 Continuar
@@ -690,6 +694,23 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Lead Capture Modal */}
+      <Dialog open={showLeadForm} onOpenChange={setShowLeadForm}>
+        <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-primary-start to-primary-end p-0 border-0">
+          <div className="bg-gradient-to-br from-primary-start to-primary-end p-8 text-center">
+            <DialogTitle className="text-3xl font-bold text-white mb-2">
+              Conte-nos um Pouco Sobre Você
+            </DialogTitle>
+            <DialogDescription className="text-white/90 text-base">
+              Essas informações nos ajudam a personalizar sua experiência.
+            </DialogDescription>
+          </div>
+          <div className="bg-background p-8 rounded-b-lg">
+            <LeadCaptureForm onClose={() => setShowLeadForm(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
