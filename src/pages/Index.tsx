@@ -82,7 +82,7 @@ const Index = () => {
       </section>
 
       {/* Challenges Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground leading-[1.1] tracking-[-0.01em]">
             O Desafio da Transição de Carreira
@@ -132,7 +132,7 @@ const Index = () => {
       </section>
 
       {/* Solution Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Nossa Abordagem para </span>
@@ -185,7 +185,7 @@ const Index = () => {
       </section>
 
       {/* Diagnosis Benefits Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Diagnóstico de Carreira: </span>
@@ -282,7 +282,7 @@ const Index = () => {
       </section>
 
       {/* Everything You Need Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Tudo que Você Precisa para </span>
@@ -371,7 +371,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Preço Simples e </span>
@@ -448,7 +448,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto w-full">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Perguntas </span>
@@ -537,7 +537,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="min-h-screen flex items-center justify-center bg-gradient-to-r from-primary-start to-primary-end px-4 py-xl">
+      <section className="flex items-center justify-center bg-gradient-to-r from-primary-start to-primary-end px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-[1.1] tracking-[-0.01em]">
             Pronto para Começar sua Jornada?
