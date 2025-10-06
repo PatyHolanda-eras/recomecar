@@ -4,15 +4,37 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Star, AlertCircle, Target, Users, Compass, TrendingUp, Brain, Map, Zap, BookOpen, Heart, Check, User, Briefcase, Mail, Phone, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Star, AlertCircle, Target, Users, Compass, TrendingUp, Brain, Map, Zap, BookOpen, Heart, Check, User, Briefcase, Mail, Phone, Instagram, Linkedin, Twitter, LogOut } from "lucide-react";
 import { LeadCaptureForm } from "@/components/LeadCaptureForm";
+import { useAuth } from "@/lib/auth";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [showLeadForm, setShowLeadForm] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Top Navigation */}
+      <div className="absolute top-0 right-0 p-6 z-10">
+        {user ? (
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              {user.email}
+            </span>
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+            <User className="h-4 w-4 mr-2" />
+            Entrar
+          </Button>
+        )}
+      </div>
+
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-4 py-xl">
         <div className="max-w-4xl mx-auto text-center">

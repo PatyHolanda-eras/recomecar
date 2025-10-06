@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,17 +8,25 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { viajanteSchema } from "@/lib/validationSchemas";
-import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
+import { clearFormData } from "@/lib/storageCleanup";
+import { useAuth } from "@/lib/auth";
 import { z } from "zod";
 
 const ViajanteCadastro = () => {
   const navigate = useNavigate();
+  const { user, session, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     nomeCompleto: "",
     email: "",
     whatsapp: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!authLoading && !session) {
+      navigate("/auth");
+    }
+  }, [session, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,21 +49,27 @@ const ViajanteCadastro = () => {
     }
 
     try {
-      // Save to Supabase
-      const { data, error } = await supabase
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Você precisa estar logado.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      // Save to Supabase with authenticated user ID
+      const { error } = await supabase
         .from('viajantes')
         .insert([{
+          id: user.id,
           nome_completo: formData.nomeCompleto,
           email: formData.email,
           whatsapp: formData.whatsapp || null
-        }])
-        .select()
-        .single();
+        }]);
 
       if (error) throw error;
-
-      // Store only ID with timestamp
-      setWithTimestamp("viajante_id", data.id);
       
       // Clear sensitive form data after successful submission
       clearFormData();
@@ -74,6 +88,10 @@ const ViajanteCadastro = () => {
       });
     }
   };
+
+  if (authLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
