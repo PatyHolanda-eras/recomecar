@@ -13,7 +13,7 @@ const Inscricao = () => {
     localStorage.setItem('role_preference', role);
     
     if (role === 'viajante') {
-      navigate('/diagnostico');
+      navigate('/viajante-cadastro');
     } else {
       navigate('/conselheiro/perfil');
     }
