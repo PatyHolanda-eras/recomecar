@@ -25,6 +25,13 @@ const bioSchema = z.string()
   .min(50, "Mínimo de 50 caracteres")
   .max(1000, "Máximo de 1000 caracteres");
 
+const linkedinUrlSchema = z.string()
+  .trim()
+  .url("URL inválida")
+  .regex(/linkedin\.com/, "Deve ser uma URL do LinkedIn")
+  .optional()
+  .or(z.literal(''));
+
 // Export schemas for each form
 export const viajanteSchema = z.object({
   nomeCompleto: nomeCompletoSchema,
@@ -34,6 +41,7 @@ export const viajanteSchema = z.object({
 
 export const conselheiroPerfilSchema = z.object({
   miniBio: bioSchema,
+  linkedinUrl: linkedinUrlSchema,
   areas: z.array(z.string()).min(1, "Selecione pelo menos uma área"),
   nivelExperiencia: z.string().min(1, "Selecione seu nível"),
   publicosApoio: z.array(z.string()).min(1, "Selecione pelo menos um público"),

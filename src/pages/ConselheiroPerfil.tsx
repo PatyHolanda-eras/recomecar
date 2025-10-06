@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -26,6 +27,7 @@ const ConselheiroPerfil = () => {
 
   const [respostas, setRespostas] = useState<ConselheiroRespostas>({
     miniBio: "",
+    linkedinUrl: "",
     areas: [],
     nivelExperiencia: "",
     publicosApoio: [],
@@ -86,6 +88,7 @@ const ConselheiroPerfil = () => {
             nome_completo: user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
             email: user.email || '',
             whatsapp: user.user_metadata?.whatsapp || null,
+            linkedin_url: respostas.linkedinUrl || null,
             anos_experiencia: null,
             areas_atuacao: respostas.areas,
             arquetipo: null,
@@ -99,7 +102,7 @@ const ConselheiroPerfil = () => {
         
         toast({
           title: "Perfil salvo!",
-          description: "Seu perfil de conselheiro foi criado com sucesso.",
+          description: "Nossa equipe entrará em contato com você em breve para maiores informações.",
         });
         
         navigate("/conselheiro-resultados");
@@ -134,7 +137,8 @@ const ConselheiroPerfil = () => {
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return respostas.miniBio.trim().length >= 50 && respostas.areas.length > 0;
+        return respostas.miniBio.trim().length >= 50 && respostas.areas.length > 0 && 
+               (respostas.linkedinUrl === "" || /linkedin\.com/.test(respostas.linkedinUrl));
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
       case 3:
@@ -183,7 +187,7 @@ const ConselheiroPerfil = () => {
                 nextDisabled={!isStepValid()}
               >
                 <div className="space-y-8">
-                  <div>
+                   <div>
                     <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
                       Mini-bio (50-1000 caracteres) *
                     </Label>
@@ -202,6 +206,26 @@ const ConselheiroPerfil = () => {
                     </p>
                     {errors.miniBio && (
                       <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="linkedinUrl" className="text-lg font-semibold text-foreground mb-3 block">
+                      URL do LinkedIn (opcional)
+                    </Label>
+                    <Input
+                      id="linkedinUrl"
+                      type="url"
+                      placeholder="https://www.linkedin.com/in/seu-perfil"
+                      value={respostas.linkedinUrl}
+                      onChange={(e) => {
+                        setRespostas({ ...respostas, linkedinUrl: e.target.value });
+                        setErrors({ ...errors, linkedinUrl: "" });
+                      }}
+                      className="text-base"
+                    />
+                    {errors.linkedinUrl && (
+                      <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>
                     )}
                   </div>
 

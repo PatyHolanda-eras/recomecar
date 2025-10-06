@@ -55,6 +55,7 @@ export interface Conselheiro {
 
 export interface ConselheiroRespostas {
   miniBio: string;
+  linkedinUrl: string;
   areas: string[];
   nivelExperiencia: string;
   publicosApoio: string[];
