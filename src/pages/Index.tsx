@@ -55,7 +55,7 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg min-h-[60vh]">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16 min-h-[60vh]">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-8">
             <Star className="w-5 h-5" />
@@ -98,7 +98,7 @@ const Index = () => {
       </section>
 
       {/* Challenges Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-foreground leading-[1.1] tracking-[-0.01em]">
             O Desafio da Transição de Carreira
@@ -149,7 +149,7 @@ const Index = () => {
       </section>
 
       {/* Solution Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Nossa Abordagem para </span>
@@ -203,7 +203,7 @@ const Index = () => {
       </section>
 
       {/* Diagnosis Benefits Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Diagnóstico de Carreira: </span>
@@ -297,7 +297,7 @@ const Index = () => {
       </section>
 
       {/* Everything You Need Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Tudo que Você Precisa para </span>
@@ -386,7 +386,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Preço Simples e </span>
@@ -457,7 +457,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="flex items-center justify-center px-4 py-md md:py-lg">
+      <section className="flex items-center justify-center px-4 py-12 md:py-16">
         <div className="max-w-3xl mx-auto w-full">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Perguntas </span>
@@ -578,7 +578,7 @@ const Index = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="flex items-center justify-center bg-gradient-to-r from-primary-start to-primary-end px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center bg-gradient-to-r from-primary-start to-primary-end px-4 py-12 md:py-16">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-2 text-white leading-[1.1] tracking-[-0.01em]">
             Pronto para Começar sua Jornada?
@@ -627,7 +627,7 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-xl px-4">
+      <footer className="bg-foreground text-background py-12 md:py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-lg mb-lg">
             <div>
