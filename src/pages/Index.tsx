@@ -128,18 +128,6 @@ const Index = () => {
               </CardHeader>
             </Card>
           </div>
-
-          <div className="text-center">
-            <h3 className="text-3xl md:text-4xl font-bold mb-4 leading-[1.1] tracking-[-0.01em]">
-              <span className="text-foreground">Nossa Abordagem para </span>
-              <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
-                Clareza Profissional
-              </span>
-            </h3>
-            <p className="text-muted-foreground leading-[1.5] mb-md">
-              O Entre Eras combina avaliação científica de carreira com aprendizado personalizado e apoio humano para guiar sua transição.
-            </p>
-          </div>
         </div>
       </section>
 
