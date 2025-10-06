@@ -11,6 +11,8 @@ import { WizardStep } from "@/components/diagnostico/WizardStep";
 import { ProgressBar } from "@/components/diagnostico/ProgressBar";
 import { ConselheiroRespostas } from "@/types/diagnostico";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
@@ -27,12 +29,45 @@ const ConselheiroPerfil = () => {
     formatoPreferido: "",
   });
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
-      localStorage.setItem("conselheiro_respostas", JSON.stringify(respostas));
-      navigate("/conselheiro-resultados");
+      try {
+        // Get lead data from localStorage
+        const leadData = localStorage.getItem("lead_data");
+        const lead = leadData ? JSON.parse(leadData) : {};
+
+        // Save to Supabase
+        const { error } = await supabase
+          .from('conselheiros')
+          .insert([{
+            nome_completo: lead.nomeCompleto || '',
+            email: lead.email || '',
+            whatsapp: lead.whatsapp || null,
+            anos_experiencia: null,
+            areas_atuacao: respostas.areas,
+            arquetipo: null,
+            bio: respostas.miniBio
+          }]);
+
+        if (error) throw error;
+
+        localStorage.setItem("conselheiro_respostas", JSON.stringify(respostas));
+        
+        toast({
+          title: "Perfil salvo!",
+          description: "Seu perfil de conselheiro foi criado com sucesso.",
+        });
+        
+        navigate("/conselheiro-resultados");
+      } catch (error) {
+        toast({
+          title: "Erro ao salvar perfil",
+          description: "Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      }
     }
   };
 

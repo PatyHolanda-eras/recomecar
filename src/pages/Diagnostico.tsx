@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { DiagnosticoRespostas } from "@/types/diagnostico";
 import { gerarResultados } from "@/lib/gerarResultados";
 import { Home } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const TOTAL_STEPS = 6;
 
@@ -23,16 +25,56 @@ const Diagnostico = () => {
     tipoApoio: [],
   });
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
       // Salvar no localStorage
       localStorage.setItem("diagnostico_progress", JSON.stringify({ step: step + 1, respostas }));
     } else {
-      // Finalizar diagnóstico
-      const resultados = gerarResultados(respostas as DiagnosticoRespostas);
-      localStorage.setItem("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
-      navigate("/diagnostico/resultados");
+      try {
+        // Finalizar diagnóstico
+        const resultados = gerarResultados(respostas as DiagnosticoRespostas);
+        
+        // Get viajante_id from localStorage
+        const viajanteId = localStorage.getItem("viajante_id");
+        
+        if (viajanteId) {
+          // Save respostas to Supabase
+          const { error: respostasError } = await supabase
+            .from('diagnostico_respostas')
+            .insert([{
+              viajante_id: viajanteId,
+              respostas: respostas
+            }]);
+
+          if (respostasError) throw respostasError;
+
+          // Save resultados to Supabase
+          const { error: resultadosError } = await supabase
+            .from('diagnostico_resultados')
+            .insert([{
+              viajante_id: viajanteId,
+              arquetipo: resultados.arquetipo.nome,
+              conselheiro_id: null
+            }]);
+
+          if (resultadosError) throw resultadosError;
+        }
+
+        localStorage.setItem("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
+        navigate("/diagnostico/resultados");
+      } catch (error) {
+        // Still navigate even if save fails
+        const resultados = gerarResultados(respostas as DiagnosticoRespostas);
+        localStorage.setItem("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
+        
+        toast({
+          title: "Aviso",
+          description: "Seus resultados foram gerados, mas houve um problema ao salvar.",
+        });
+        
+        navigate("/diagnostico/resultados");
+      }
     }
   };
 

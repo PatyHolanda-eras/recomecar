@@ -14,7 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conselheiros: {
+        Row: {
+          anos_experiencia: number | null
+          areas_atuacao: string[] | null
+          arquetipo: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          nome_completo: string
+          whatsapp: string | null
+        }
+        Insert: {
+          anos_experiencia?: number | null
+          areas_atuacao?: string[] | null
+          arquetipo?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          nome_completo: string
+          whatsapp?: string | null
+        }
+        Update: {
+          anos_experiencia?: number | null
+          areas_atuacao?: string[] | null
+          arquetipo?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          nome_completo?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      diagnostico_respostas: {
+        Row: {
+          created_at: string
+          id: string
+          respostas: Json
+          viajante_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          respostas: Json
+          viajante_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          respostas?: Json
+          viajante_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostico_respostas_viajante_id_fkey"
+            columns: ["viajante_id"]
+            isOneToOne: false
+            referencedRelation: "viajantes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diagnostico_resultados: {
+        Row: {
+          arquetipo: string
+          conselheiro_id: string | null
+          created_at: string
+          id: string
+          viajante_id: string | null
+        }
+        Insert: {
+          arquetipo: string
+          conselheiro_id?: string | null
+          created_at?: string
+          id?: string
+          viajante_id?: string | null
+        }
+        Update: {
+          arquetipo?: string
+          conselheiro_id?: string | null
+          created_at?: string
+          id?: string
+          viajante_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostico_resultados_conselheiro_id_fkey"
+            columns: ["conselheiro_id"]
+            isOneToOne: false
+            referencedRelation: "conselheiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diagnostico_resultados_viajante_id_fkey"
+            columns: ["viajante_id"]
+            isOneToOne: false
+            referencedRelation: "viajantes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome_completo: string
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          nome_completo: string
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome_completo?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      viajantes: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          nome_completo: string
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          nome_completo: string
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          nome_completo?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

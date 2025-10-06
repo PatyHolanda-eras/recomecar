@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Star } from "lucide-react";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const leadSchema = z.object({
   nomeCompleto: z.string().trim().min(1, { message: "Nome completo é obrigatório" }).max(100),
@@ -29,13 +30,24 @@ export const LeadCaptureForm = ({ onClose }: LeadCaptureFormProps) => {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof LeadFormData, string>>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       leadSchema.parse(formData);
       
-      // Store lead data in localStorage
+      // Save to Supabase
+      const { error } = await supabase
+        .from('leads')
+        .insert([{
+          nome_completo: formData.nomeCompleto,
+          email: formData.email,
+          whatsapp: formData.whatsapp || null
+        }]);
+
+      if (error) throw error;
+      
+      // Also store in localStorage for backward compatibility
       localStorage.setItem("leadData", JSON.stringify(formData));
       
       // Navigate to inscricao page
@@ -55,6 +67,12 @@ export const LeadCaptureForm = ({ onClose }: LeadCaptureFormProps) => {
           }
         });
         setErrors(fieldErrors);
+      } else {
+        toast({
+          title: "Erro ao salvar",
+          description: "Tente novamente mais tarde.",
+          variant: "destructive",
+        });
       }
     }
   };

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const ViajanteCadastro = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const ViajanteCadastro = () => {
     whatsapp: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.nomeCompleto || !formData.email || !formData.whatsapp) {
@@ -27,16 +28,38 @@ const ViajanteCadastro = () => {
       return;
     }
 
-    // Salvar dados do lead
-    localStorage.setItem("lead_data", JSON.stringify(formData));
-    
-    toast({
-      title: "Cadastro realizado!",
-      description: "Agora vamos ao seu diagnóstico de carreira.",
-    });
-    
-    // Navegar para o diagnóstico
-    navigate("/diagnostico");
+    try {
+      // Save to Supabase
+      const { data, error } = await supabase
+        .from('viajantes')
+        .insert([{
+          nome_completo: formData.nomeCompleto,
+          email: formData.email,
+          whatsapp: formData.whatsapp
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Store viajante_id in localStorage for later use
+      localStorage.setItem("viajante_id", data.id);
+      localStorage.setItem("lead_data", JSON.stringify(formData));
+      
+      toast({
+        title: "Cadastro realizado!",
+        description: "Agora vamos ao seu diagnóstico de carreira.",
+      });
+      
+      // Navegar para o diagnóstico
+      navigate("/diagnostico");
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar cadastro",
+        description: "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
