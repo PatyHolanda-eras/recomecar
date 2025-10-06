@@ -36,7 +36,7 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 py-xl">
+      <section className="flex items-center justify-center px-4 py-lg md:py-xl min-h-[70vh]">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-8">
             <Star className="w-5 h-5" />
