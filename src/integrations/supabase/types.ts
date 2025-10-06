@@ -117,13 +117,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "diagnostico_resultados_conselheiro_id_fkey"
-            columns: ["conselheiro_id"]
-            isOneToOne: false
-            referencedRelation: "conselheiros_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "diagnostico_resultados_viajante_id_fkey"
             columns: ["viajante_id"]
             isOneToOne: false
@@ -210,38 +203,21 @@ export type Database = {
       }
     }
     Views: {
-      conselheiros_public: {
-        Row: {
-          anos_experiencia: number | null
-          areas_atuacao: string[] | null
-          arquetipo: string | null
-          bio: string | null
-          created_at: string | null
-          id: string | null
-          nome_completo: string | null
-        }
-        Insert: {
-          anos_experiencia?: number | null
-          areas_atuacao?: string[] | null
-          arquetipo?: string | null
-          bio?: string | null
-          created_at?: string | null
-          id?: string | null
-          nome_completo?: string | null
-        }
-        Update: {
-          anos_experiencia?: number | null
-          areas_atuacao?: string[] | null
-          arquetipo?: string | null
-          bio?: string | null
-          created_at?: string | null
-          id?: string | null
-          nome_completo?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
+      get_conselheiros_public: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          anos_experiencia: number
+          areas_atuacao: string[]
+          arquetipo: string
+          bio: string
+          created_at: string
+          id: string
+          nome_completo: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
