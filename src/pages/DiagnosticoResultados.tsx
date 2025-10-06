@@ -29,13 +29,25 @@ const DiagnosticoResultados = () => {
       // Calcular match com conselheiros
       const match = encontrarMelhorConselheiro(resp, mockConselheiros);
       setMelhorMatch(match);
+
+      // Se não houver match, notificar equipe automaticamente
+      if (!match) {
+        handleNotificarEquipe(resp, res, false);
+      }
     } else {
       navigate("/diagnostico");
     }
   }, [navigate]);
 
-  const handleNotificarEquipe = () => {
-    if (!respostas || !resultados) return;
+  const handleNotificarEquipe = (
+    resp?: DiagnosticoRespostas,
+    res?: DiagnosticoResultadosType,
+    showToast = true
+  ) => {
+    const currentRespostas = resp || respostas;
+    const currentResultados = res || resultados;
+    
+    if (!currentRespostas || !currentResultados) return;
     
     const diagnosticoTexto = `
 NOVO VIAJANTE SEM MATCH DE CONSELHEIRO
@@ -46,25 +58,31 @@ WhatsApp: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem(
 
 DIAGNÓSTICO DE CARREIRA:
 
-Objetivo: ${respostas.objetivo}
-Momento de carreira: ${respostas.nivel}
-Áreas de interesse: ${respostas.areas.join(", ")}
-Desafios: ${respostas.duvidas.join(", ")}
-Tipo de apoio: ${respostas.tipoApoio.join(", ")}
-Disponibilidade: ${respostas.estiloConselheiro}
+Objetivo: ${currentRespostas.objetivo}
+Áreas de interesse: ${currentRespostas.areas.join(", ")}
+Nível de experiência: ${currentRespostas.nivel}
+Desafios: ${currentRespostas.duvidas.join(", ")}
+Tipo de apoio: ${currentRespostas.tipoApoio.join(", ")}
+Estilo de conselheiro: ${currentRespostas.estiloConselheiro}
 
-Arquétipo: ${resultados.arquetipo.nome}
-Descrição: ${resultados.arquetipo.descricao}
+Arquétipo: ${currentResultados.arquetipo.nome}
+Descrição: ${currentResultados.arquetipo.descricao}
     `.trim();
 
     const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Viajante sem Match - ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).nomeCompleto : "Viajante"}&body=${encodeURIComponent(diagnosticoTexto)}`;
     
     window.location.href = mailtoLink;
     
-    toast({
-      title: "Notificação enviada!",
-      description: "Nossa equipe foi informada e entrará em contato em breve.",
-    });
+    if (showToast) {
+      toast({
+        title: "Notificação enviada!",
+        description: "Nossa equipe foi informada e entrará em contato em breve.",
+      });
+    }
+  };
+
+  const handleAgendarConversa = () => {
+    handleNotificarEquipe(respostas || undefined, resultados || undefined, true);
   };
 
   if (!resultados || !respostas) {
@@ -204,7 +222,7 @@ Descrição: ${resultados.arquetipo.descricao}
                   </div>
 
                   <Button 
-                    onClick={handleNotificarEquipe} 
+                    onClick={handleAgendarConversa} 
                     size="lg" 
                     className="w-full bg-[hsl(145,63%,49%)] hover:bg-[hsl(145,63%,42%)] text-white"
                   >
@@ -228,17 +246,18 @@ Descrição: ${resultados.arquetipo.descricao}
                   </div>
                 </CardHeader>
                 <CardContent className="px-8 pb-8">
-                  <p className="text-base text-foreground leading-[1.6] mb-6 text-center">
+                  <p className="text-base text-foreground leading-[1.6] text-center">
                     Que pena, nesse momento não encontramos um conselheiro para te apoiar, mas a nossa equipe foi informada sobre o seu interesse e vai buscar para você. Pedimos que aguarde, pois em breve entraremos em contato!
                   </p>
                   
-                  <Button 
-                    onClick={handleNotificarEquipe} 
-                    size="lg" 
-                    className="w-full"
-                  >
-                    Notificar Equipe
-                  </Button>
+                  <div className="mt-6 p-4 bg-accent/10 rounded-lg border-2 border-accent/30">
+                    <p className="text-sm text-foreground text-center font-semibold">
+                      ✓ Notificação enviada!
+                    </p>
+                    <p className="text-xs text-[#666666] text-center mt-1">
+                      Nossa equipe foi informada e entrará em contato em breve.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
