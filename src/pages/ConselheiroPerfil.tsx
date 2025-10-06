@@ -138,7 +138,7 @@ const ConselheiroPerfil = () => {
     switch (step) {
       case 1:
         return respostas.miniBio.trim().length >= 50 && respostas.areas.length > 0 && 
-               (respostas.linkedinUrl === "" || /linkedin\.com/.test(respostas.linkedinUrl));
+               respostas.linkedinUrl.trim().length > 0 && /linkedin\.com/.test(respostas.linkedinUrl);
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
       case 3:
@@ -211,7 +211,7 @@ const ConselheiroPerfil = () => {
 
                   <div>
                     <Label htmlFor="linkedinUrl" className="text-lg font-semibold text-foreground mb-3 block">
-                      URL do LinkedIn (opcional)
+                      URL do LinkedIn *
                     </Label>
                     <Input
                       id="linkedinUrl"

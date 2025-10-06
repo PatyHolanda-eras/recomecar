@@ -27,10 +27,9 @@ const bioSchema = z.string()
 
 const linkedinUrlSchema = z.string()
   .trim()
+  .min(1, "URL do LinkedIn é obrigatória")
   .url("URL inválida")
-  .regex(/linkedin\.com/, "Deve ser uma URL do LinkedIn")
-  .optional()
-  .or(z.literal(''));
+  .regex(/linkedin\.com/, "Deve ser uma URL do LinkedIn");
 
 // Export schemas for each form
 export const viajanteSchema = z.object({
