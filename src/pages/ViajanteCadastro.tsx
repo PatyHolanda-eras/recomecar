@@ -24,7 +24,7 @@ const ViajanteCadastro = () => {
 
   useEffect(() => {
     if (!authLoading && !session) {
-      navigate("/auth");
+      navigate("/auth?redirect=/viajante-cadastro");
     }
   }, [session, authLoading, navigate]);
 

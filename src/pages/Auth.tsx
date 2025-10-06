@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const redirectTo = searchParams.get('redirect') || '/';
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({ 
     email: "", 
@@ -47,7 +49,7 @@ const Auth = () => {
         description: "Bem-vindo de volta.",
       });
 
-      navigate("/");
+      navigate(redirectTo);
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
@@ -109,14 +111,11 @@ const Auth = () => {
 
       toast({
         title: "Cadastro realizado!",
-        description: "Você já pode fazer login.",
+        description: "Redirecionando...",
       });
 
-      // Switch to login tab
-      const loginTab = document.querySelector('[value="login"]') as HTMLElement;
-      loginTab?.click();
-      
-      setLoginData({ email: signupData.email, password: "" });
+      // Redirect to the intended page after signup
+      navigate(redirectTo);
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",

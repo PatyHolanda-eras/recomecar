@@ -32,7 +32,7 @@ const Diagnostico = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/auth");
+      navigate("/auth?redirect=/diagnostico");
     }
   }, [user, loading, navigate]);
 
