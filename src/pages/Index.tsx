@@ -4,7 +4,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Star, AlertCircle, Target, Users, Compass, TrendingUp, Brain, Map, Zap, BookOpen, Heart, Check, User, Briefcase, Mail, Phone, Instagram, Linkedin, Twitter, LogOut } from "lucide-react";
+import {
+  Star,
+  AlertCircle,
+  Target,
+  Users,
+  Compass,
+  TrendingUp,
+  Brain,
+  Map,
+  Zap,
+  BookOpen,
+  Heart,
+  Check,
+  User,
+  Briefcase,
+  Mail,
+  Phone,
+  Instagram,
+  Linkedin,
+  Twitter,
+  LogOut,
+} from "lucide-react";
 import { LeadCaptureForm } from "@/components/LeadCaptureForm";
 import { useAuth } from "@/lib/auth";
 
@@ -19,9 +40,7 @@ const Index = () => {
       <div className="absolute top-0 right-0 p-6 z-10">
         {user ? (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {user.email}
-            </span>
+            <span className="text-sm text-muted-foreground">{user.email}</span>
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Sair
@@ -38,32 +57,29 @@ const Index = () => {
       {/* Hero Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl min-h-[70vh]">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-8">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-5">
             <Star className="w-5 h-5" />
             <span className="font-semibold">Fase Piloto - Acesso Limitado</span>
           </div>
-          
+
           <h1 className="text-5xl md:text-6xl font-bold mb-3 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Encontre clareza no seu </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               próximo passo profissional
             </span>
           </h1>
-          
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-[1.5]">
-            Navegue transições de carreira com confiança. Tenha orientação personalizada, conecte-se com uma comunidade de apoio e descubra seu caminho com nossa abordagem única de Diagnóstico de Carreira.
+
+          <p className="text-xl text-muted-foreground mb-5 max-w-3xl mx-auto leading-[1.5]">
+            Navegue transições de carreira com confiança. Tenha orientação personalizada, conecte-se com uma comunidade
+            de apoio e descubra seu caminho com nossa abordagem única de Diagnóstico de Carreira.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <Button
-              size="lg"
-              onClick={() => navigate("/inscricao")}
-              className="text-base px-8 py-6"
-            >
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
+            <Button size="lg" onClick={() => navigate("/inscricao")} className="text-base px-8 py-6">
               Participar do Programa Piloto
               <Compass className="ml-2 h-5 w-5" />
             </Button>
-            
+
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
@@ -88,9 +104,10 @@ const Index = () => {
             O Desafio da Transição de Carreira
           </h2>
           <p className="text-center text-muted-foreground mb-md max-w-3xl mx-auto leading-[1.5]">
-            A maioria dos profissionais se sente perdida durante transições de carreira, faltando clareza e apoio quando mais precisam.
+            A maioria dos profissionais se sente perdida durante transições de carreira, faltando clareza e apoio quando
+            mais precisam.
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-md mb-lg">
             <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all border-0">
               <CardHeader className="p-8">
@@ -141,9 +158,10 @@ const Index = () => {
             </span>
           </h2>
           <p className="text-center text-muted-foreground mb-md max-w-3xl mx-auto leading-[1.5]">
-            O Entre Eras combina avaliação científica de carreira com aprendizado personalizado e apoio humano para guiar sua transição.
+            O Entre Eras combina avaliação científica de carreira com aprendizado personalizado e apoio humano para
+            guiar sua transição.
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-md">
             <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all border-0">
               <CardHeader className="p-8">
@@ -194,9 +212,10 @@ const Index = () => {
             </span>
           </h2>
           <p className="text-center text-muted-foreground mb-md max-w-3xl mx-auto leading-[1.5]">
-            Diferente de conselhos genéricos de carreira, nosso Diagnóstico de Carreira proprietário fornece clareza científica sobre onde você está e para onde pode ir realisticamente.
+            Diferente de conselhos genéricos de carreira, nosso Diagnóstico de Carreira proprietário fornece clareza
+            científica sobre onde você está e para onde pode ir realisticamente.
           </p>
-          
+
           <div className="grid md:grid-cols-2 gap-md">
             <div className="space-y-6">
               <div className="flex gap-4">
@@ -241,9 +260,9 @@ const Index = () => {
                 <div className="w-14 h-14 bg-gradient-to-br from-[#4169E1] to-[#8B3DFF] rounded-2xl flex items-center justify-center mb-6 mx-auto">
                   <Compass className="h-7 w-7 text-white" />
                 </div>
-                
+
                 <h3 className="text-2xl font-bold text-center mb-2">O que Você Descobrirá</h3>
-                
+
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
                     <div className="w-2 h-2 rounded-full bg-[#4169E1] mt-2 shrink-0"></div>
@@ -267,11 +286,7 @@ const Index = () => {
                   </li>
                 </ul>
 
-                <Button
-                  size="lg"
-                  onClick={() => navigate("/diagnostico")}
-                  className="w-full mt-8"
-                >
+                <Button size="lg" onClick={() => navigate("/diagnostico")} className="w-full mt-8">
                   Faça seu Diagnóstico de Carreira
                   <Compass className="ml-2 h-5 w-5" />
                 </Button>
@@ -293,7 +308,7 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-md max-w-3xl mx-auto leading-[1.5]">
             Sistema de suporte abrangente desenhado especificamente para transições de carreira
           </p>
-          
+
           <div className="grid md:grid-cols-3 gap-md">
             <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] transition-all border-0">
               <CardHeader className="p-8">
@@ -382,7 +397,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-md leading-[1.5]">
             Inicie sua jornada de transformação profissional com nosso programa piloto
           </p>
-          
+
           <Card className="shadow-[0_4px_16px_rgba(0,0,0,0.15)] border-0 max-w-lg mx-auto">
             <CardHeader className="text-center pb-4">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-4 py-2 rounded-full mb-4 mx-auto text-sm">
@@ -393,12 +408,10 @@ const Index = () => {
               <div className="text-5xl font-bold mb-2">
                 R$ 9,99 <span className="text-xl text-muted-foreground font-normal">/mês</span>
               </div>
-              <p className="text-muted-foreground">
-                Tudo que você precisa para navegar sua transição de carreira
-              </p>
+              <p className="text-muted-foreground">Tudo que você precisa para navegar sua transição de carreira</p>
             </CardHeader>
             <CardContent className="px-8 pb-8">
-              <ul className="space-y-4 text-left mb-8">
+              <ul className="space-y-4 text-left mb-5">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <span>Diagnóstico Completo de Carreira</span>
@@ -425,11 +438,7 @@ const Index = () => {
                 </li>
               </ul>
 
-              <Button
-                size="lg"
-                onClick={() => navigate("/inscricao")}
-                className="w-full"
-              >
+              <Button size="lg" onClick={() => navigate("/inscricao")} className="w-full">
                 Participar do Programa Piloto
               </Button>
 
@@ -459,77 +468,109 @@ const Index = () => {
           <p className="text-center text-muted-foreground mb-md leading-[1.5]">
             Tudo que você precisa saber sobre o re.começar e transições de carreira
           </p>
-          
+
           <Accordion type="single" collapsible className="w-full space-y-4">
-            <AccordionItem value="item-1" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-1"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 O que torna o Diagnóstico de Carreira diferente de outras avaliações?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Nosso diagnóstico combina metodologia científica com análise personalizada, fornecendo não apenas insights sobre seu perfil, mas também caminhos práticos e realistas baseados no mercado atual.
+                Nosso diagnóstico combina metodologia científica com análise personalizada, fornecendo não apenas
+                insights sobre seu perfil, mas também caminhos práticos e realistas baseados no mercado atual.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-2"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Quanto tempo leva para ver resultados?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Você recebe seu diagnóstico completo imediatamente após completar as avaliações. O cronograma de transição é personalizado, geralmente entre 3-6 meses dependendo de seus objetivos.
+                Você recebe seu diagnóstico completo imediatamente após completar as avaliações. O cronograma de
+                transição é personalizado, geralmente entre 3-6 meses dependendo de seus objetivos.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-3"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 É adequado para profissionais sêniores?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Sim! Nossa metodologia é eficaz para profissionais em todos os níveis, do júnior ao executivo. Adaptamos a abordagem de acordo com sua experiência e objetivos.
+                Sim! Nossa metodologia é eficaz para profissionais em todos os níveis, do júnior ao executivo. Adaptamos
+                a abordagem de acordo com sua experiência e objetivos.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-4"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 E se eu não tenho certeza para qual carreira quero fazer transição?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Esse é exatamente o tipo de situação onde o Diagnóstico de Carreira mais ajuda. Ele identifica múltiplos caminhos possíveis baseados em seu perfil, ajudando você a tomar uma decisão informada.
+                Esse é exatamente o tipo de situação onde o Diagnóstico de Carreira mais ajuda. Ele identifica múltiplos
+                caminhos possíveis baseados em seu perfil, ajudando você a tomar uma decisão informada.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-5"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Como funciona o programa piloto?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                O programa piloto oferece acesso completo à plataforma por um preço especial. Você terá todas as funcionalidades principais e ajudará a moldar o futuro do produto com seu feedback.
+                O programa piloto oferece acesso completo à plataforma por um preço especial. Você terá todas as
+                funcionalidades principais e ajudará a moldar o futuro do produto com seu feedback.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-6"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Posso cancelar a qualquer momento?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Sim, você pode cancelar sua assinatura a qualquer momento sem taxas adicionais. Acreditamos que você deve continuar porque está vendo valor, não por estar preso a um contrato.
+                Sim, você pode cancelar sua assinatura a qualquer momento sem taxas adicionais. Acreditamos que você
+                deve continuar porque está vendo valor, não por estar preso a um contrato.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-7" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-7"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Vocês oferecem reembolso?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Sim, oferecemos garantia de satisfação de 7 dias. Se você não estiver satisfeito, basta nos contatar para um reembolso completo.
+                Sim, oferecemos garantia de satisfação de 7 dias. Se você não estiver satisfeito, basta nos contatar
+                para um reembolso completo.
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-8" className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <AccordionItem
+              value="item-8"
+              className="bg-card border-0 rounded-2xl px-6 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+            >
               <AccordionTrigger className="text-left font-semibold hover:no-underline">
                 Como acesso mentoria 1:1?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                Após completar seu diagnóstico, você receberá matches com conselheiros compatíveis. Você pode agendar sessões diretamente através da plataforma como serviço adicional.
+                Após completar seu diagnóstico, você receberá matches com conselheiros compatíveis. Você pode agendar
+                sessões diretamente através da plataforma como serviço adicional.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -542,52 +583,42 @@ const Index = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-2 text-white leading-[1.1] tracking-[-0.01em]">
             Pronto para Começar sua Jornada?
           </h2>
-          <p className="text-xl text-white/90 mb-8 leading-[1.5]">
-            Primeiro, precisamos saber qual é o seu perfil.
-          </p>
-          
+          <p className="text-xl text-white/90 mb-5 leading-[1.5]">Primeiro, precisamos saber qual é o seu perfil.</p>
+
           <Card className="shadow-[0_4px_16px_rgba(0,0,0,0.15)] border-0 max-w-2xl mx-auto">
             <CardContent className="p-8">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-start to-primary-end rounded-2xl flex items-center justify-center mb-6 mx-auto">
                 <User className="h-8 w-8 text-white" />
               </div>
-              
+
               <h3 className="text-2xl font-bold mb-2">Qual é o Seu Perfil?</h3>
-              <p className="text-muted-foreground mb-8">O que te traz aqui?</p>
-              
-              <div className="grid md:grid-cols-2 gap-4 mb-8">
-                <Card 
+              <p className="text-muted-foreground mb-5">O que te traz aqui?</p>
+
+              <div className="grid md:grid-cols-2 gap-4 mb-5">
+                <Card
                   className="cursor-pointer hover:shadow-md transition-all border-2 border-primary bg-primary-lighter"
                   onClick={() => setShowLeadForm(true)}
                 >
                   <CardContent className="p-6 text-center">
                     <User className="h-8 w-8 mx-auto mb-3 text-primary" />
                     <h4 className="font-bold text-lg mb-2 text-primary">Viajante</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Busco orientação para minha carreira
-                    </p>
+                    <p className="text-sm text-muted-foreground">Busco orientação para minha carreira</p>
                   </CardContent>
                 </Card>
 
-                <Card 
+                <Card
                   className="cursor-pointer hover:shadow-md transition-all border-2 border-border"
                   onClick={() => setShowLeadForm(true)}
                 >
                   <CardContent className="p-6 text-center">
                     <Briefcase className="h-8 w-8 mx-auto mb-3 text-foreground" />
                     <h4 className="font-bold text-lg mb-2">Conselheiro</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Quero ajudar outros profissionais
-                    </p>
+                    <p className="text-sm text-muted-foreground">Quero ajudar outros profissionais</p>
                   </CardContent>
                 </Card>
               </div>
 
-              <Button
-                size="lg"
-                onClick={() => setShowLeadForm(true)}
-                className="w-full"
-              >
+              <Button size="lg" onClick={() => setShowLeadForm(true)} className="w-full">
                 Continuar
               </Button>
             </CardContent>
@@ -604,12 +635,16 @@ const Index = () => {
                 re.começar
               </h3>
               <p className="text-background/70 mb-6 leading-[1.5]">
-                Capacitando profissionais a navegar transições de carreira com clareza, confiança e apoio da comunidade através da nossa abordagem inovadora de Diagnóstico de Carreira.
+                Capacitando profissionais a navegar transições de carreira com clareza, confiança e apoio da comunidade
+                através da nossa abordagem inovadora de Diagnóstico de Carreira.
               </p>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-primary" />
-                  <a href="mailto:ola@recomecar.com" className="text-background/70 hover:text-background transition-colors">
+                  <a
+                    href="mailto:ola@recomecar.com"
+                    className="text-background/70 hover:text-background transition-colors"
+                  >
                     ola@recomecar.com
                   </a>
                 </div>
@@ -686,9 +721,7 @@ const Index = () => {
           </div>
 
           <div className="border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-background/70 text-sm">
-              © 2024 re.começar. Todos os direitos reservados.
-            </p>
+            <p className="text-background/70 text-sm">© 2024 re.começar. Todos os direitos reservados.</p>
             <div className="flex items-center gap-4">
               <span className="text-background/70 text-sm">Siga-nos:</span>
               <a href="#" className="text-background/70 hover:text-background transition-colors">
@@ -709,9 +742,7 @@ const Index = () => {
       <Dialog open={showLeadForm} onOpenChange={setShowLeadForm}>
         <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-primary-start to-primary-end p-0 border-0">
           <div className="bg-gradient-to-br from-primary-start to-primary-end p-8 text-center">
-            <DialogTitle className="text-3xl font-bold text-white mb-2">
-              Conte-nos um Pouco Sobre Você
-            </DialogTitle>
+            <DialogTitle className="text-3xl font-bold text-white mb-2">Conte-nos um Pouco Sobre Você</DialogTitle>
             <DialogDescription className="text-white/90 text-base">
               Essas informações nos ajudam a personalizar sua experiência.
             </DialogDescription>
