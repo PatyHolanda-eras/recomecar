@@ -59,9 +59,9 @@ const Diagnostico = () => {
       case 1:
         return !!respostas.objetivo;
       case 2:
-        return (respostas.areas?.length || 0) > 0;
-      case 3:
         return !!respostas.nivel;
+      case 3:
+        return (respostas.areas?.length || 0) > 0;
       case 4:
         return (respostas.duvidas?.length || 0) > 0;
       case 5:
@@ -99,9 +99,9 @@ const Diagnostico = () => {
                   showPrev={false}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2">Qual é o seu objetivo principal?</CardTitle>
+                  <CardTitle className="mb-2">Qual seu principal objetivo hoje?</CardTitle>
                   <CardDescription className="mb-6">
-                    Escolha a opção que melhor descreve o que você busca neste momento
+                    Escolha a opção que melhor representa onde você está agora
                   </CardDescription>
                   <RadioGroup
                     value={respostas.objetivo}
@@ -109,11 +109,12 @@ const Diagnostico = () => {
                     className="space-y-4"
                   >
                     {[
-                      { value: "transicao", label: "Fazer uma transição de carreira" },
-                      { value: "crescimento", label: "Crescer na minha área atual" },
-                      { value: "especializacao", label: "Me especializar em algo novo" },
-                      { value: "empreender", label: "Empreender ou criar meu negócio" },
-                      { value: "clareza", label: "Ganhar clareza sobre meu futuro profissional" },
+                      { value: "mudar", label: "Mudar de carreira" },
+                      { value: "crescer", label: "Crescer profissionalmente na área atual" },
+                      { value: "autoconhecimento", label: "Ter mais autoconhecimento profissional" },
+                      { value: "entender", label: "Entender o que realmente faz sentido para mim" },
+                      { value: "equilibrio", label: "Encontrar equilíbrio entre vida pessoal e profissional" },
+                      { value: "especializacao", label: "Me especializar ou desenvolver novas habilidades" },
                     ].map((option) => (
                       <div key={option.value} className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary-lighter/20 transition-colors cursor-pointer">
                         <RadioGroupItem value={option.value} id={option.value} />
@@ -134,51 +135,9 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2 text-foreground">Quais áreas de interesse mais te atraem?</CardTitle>
+                  <CardTitle className="mb-2 text-foreground">Em qual momento de carreira você se encontra?</CardTitle>
                   <CardDescription className="mb-6 text-secondary-foreground">
-                    Selecione todas as áreas que você gostaria de explorar
-                  </CardDescription>
-                  <div className="space-y-4">
-                    {[
-                      "tecnologia",
-                      "negocios",
-                      "criatividade",
-                      "educacao",
-                      "saude",
-                      "comunicacao",
-                      "vendas",
-                      "gestao",
-                    ].map((area) => (
-                      <div
-                        key={area}
-                        className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary-lighter/20 transition-colors cursor-pointer"
-                        onClick={() => toggleArrayItem("areas", area)}
-                      >
-                        <Checkbox
-                          id={area}
-                          checked={respostas.areas?.includes(area)}
-                          onCheckedChange={() => toggleArrayItem("areas", area)}
-                        />
-                        <Label htmlFor={area} className="flex-1 cursor-pointer text-base capitalize">
-                          {area}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </WizardStep>
-              )}
-
-              {/* Etapa 3: Nível de Experiência */}
-              {step === 3 && (
-                <WizardStep
-                  key="step3"
-                  onNext={handleNext}
-                  onPrev={handlePrev}
-                  nextDisabled={!isStepValid()}
-                >
-                  <CardTitle className="mb-2 text-foreground">Qual seu nível atual de experiência?</CardTitle>
-                  <CardDescription className="mb-6 text-secondary-foreground">
-                    Isso nos ajuda a personalizar as recomendações
+                    Escolha a opção que melhor descreve sua situação atual
                   </CardDescription>
                   <RadioGroup
                     value={respostas.nivel}
@@ -186,9 +145,11 @@ const Diagnostico = () => {
                     className="space-y-4"
                   >
                     {[
-                      { value: "iniciante", label: "Iniciante - Começando agora" },
-                      { value: "intermediario", label: "Intermediário - Tenho alguma experiência" },
-                      { value: "avancado", label: "Avançado - Bastante experiência" },
+                      { value: "inicio", label: "Começando minha jornada profissional" },
+                      { value: "desenvolvimento", label: "Em desenvolvimento, ganhando experiência" },
+                      { value: "consolidacao", label: "Consolidando minha carreira" },
+                      { value: "transicao", label: "Em transição ou mudança de área" },
+                      { value: "recolocacao", label: "Buscando recolocação" },
                     ].map((option) => (
                       <div key={option.value} className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary-lighter/20 transition-colors cursor-pointer">
                         <RadioGroupItem value={option.value} id={option.value} />
@@ -201,7 +162,50 @@ const Diagnostico = () => {
                 </WizardStep>
               )}
 
-              {/* Etapa 4: Maiores Dúvidas */}
+              {/* Etapa 3: Áreas de Interesse */}
+              {step === 3 && (
+                <WizardStep
+                  key="step3"
+                  onNext={handleNext}
+                  onPrev={handlePrev}
+                  nextDisabled={!isStepValid()}
+                >
+                  <CardTitle className="mb-2 text-foreground">Quais áreas mais te interessam nesse momento?</CardTitle>
+                  <CardDescription className="mb-6 text-secondary-foreground">
+                    Pode escolher mais de uma opção
+                  </CardDescription>
+                  <div className="space-y-4">
+                    {[
+                      "Tecnologia",
+                      "Criatividade e Design",
+                      "Negócios e Empreendedorismo",
+                      "Educação e Ensino",
+                      "Saúde e Bem-estar",
+                      "Comunicação e Marketing",
+                      "Gestão e Liderança",
+                      "Sustentabilidade e Impacto Social",
+                      "Ainda não sei",
+                    ].map((area) => (
+                      <div
+                        key={area}
+                        className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary-lighter/20 transition-colors cursor-pointer"
+                        onClick={() => toggleArrayItem("areas", area)}
+                      >
+                        <Checkbox
+                          id={area}
+                          checked={respostas.areas?.includes(area)}
+                          onCheckedChange={() => toggleArrayItem("areas", area)}
+                        />
+                        <Label htmlFor={area} className="flex-1 cursor-pointer text-base">
+                          {area}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </WizardStep>
+              )}
+
+              {/* Etapa 4: Principais Desafios */}
               {step === 4 && (
                 <WizardStep
                   key="step4"
@@ -209,19 +213,19 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2 text-foreground">Quais suas maiores dúvidas ou desafios atuais?</CardTitle>
+                  <CardTitle className="mb-2 text-foreground">O que mais te desafia hoje?</CardTitle>
                   <CardDescription className="mb-6 text-secondary-foreground">
-                    Selecione os temas nos quais você precisa de mais orientação
+                    Pode escolher mais de uma opção
                   </CardDescription>
                   <div className="space-y-4">
                     {[
-                      "Como começar uma transição",
-                      "Que habilidades desenvolver",
-                      "Como construir um portfólio",
-                      "Networking e conexões",
-                      "Identificar oportunidades",
-                      "Gestão de carreira",
-                      "Equilíbrio vida-trabalho",
+                      "Falta de clareza sobre o próximo passo",
+                      "Medo de escolher errado",
+                      "Não sei por onde começar",
+                      "Dificuldade em equilibrar trabalho e vida pessoal",
+                      "Falta de confiança ou autoestima profissional",
+                      "Sentir que estou estagnado(a)",
+                      "Pressão externa (família, sociedade, financeira)",
                     ].map((duvida) => (
                       <div
                         key={duvida}
@@ -250,17 +254,18 @@ const Diagnostico = () => {
                   onPrev={handlePrev}
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2 text-foreground">Qual tipo de apoio você prefere neste momento?</CardTitle>
+                  <CardTitle className="mb-2 text-foreground">O que você espera de uma orientação de carreira?</CardTitle>
                   <CardDescription className="mb-6 text-secondary-foreground">
-                    Selecione os formatos que fazem mais sentido para você
+                    Pode escolher mais de uma opção
                   </CardDescription>
                   <div className="space-y-4">
                     {[
-                      "Conversas individuais",
-                      "Sessões em grupo",
-                      "Recursos e materiais",
-                      "Feedback sobre projetos",
-                      "Indicações e conexões",
+                      "Alguém que me escute e entenda meu momento",
+                      "Direcionamento prático e objetivo",
+                      "Ferramentas e técnicas para autoconhecimento",
+                      "Ajuda para construir um plano de ação",
+                      "Apoio emocional e motivacional",
+                      "Conexões e networking",
                     ].map((tipo) => (
                       <div
                         key={tipo}
@@ -281,7 +286,7 @@ const Diagnostico = () => {
                 </WizardStep>
               )}
 
-              {/* Etapa 6: Estilo de Conselheiro */}
+              {/* Etapa 6: Disponibilidade */}
               {step === 6 && (
                 <WizardStep
                   key="step6"
@@ -290,9 +295,9 @@ const Diagnostico = () => {
                   isLastStep
                   nextDisabled={!isStepValid()}
                 >
-                  <CardTitle className="mb-2 text-foreground">Qual estilo de conselheiro(a) você prefere?</CardTitle>
+                  <CardTitle className="mb-2 text-foreground">Quanto tempo você consegue dedicar para isso agora?</CardTitle>
                   <CardDescription className="mb-6 text-secondary-foreground">
-                    Escolha o perfil que você acredita que vai te ajudar melhor
+                    Seja honesto(a) sobre sua disponibilidade atual
                   </CardDescription>
                   <RadioGroup
                     value={respostas.estiloConselheiro}
@@ -300,10 +305,10 @@ const Diagnostico = () => {
                     className="space-y-4"
                   >
                     {[
-                      { value: "pratico", label: "Prático - Direto ao ponto, focado em ações" },
-                      { value: "reflexivo", label: "Reflexivo - Ajuda a pensar e clarear ideias" },
-                      { value: "inspirador", label: "Inspirador - Motiva e traz perspectivas amplas" },
-                      { value: "tecnico", label: "Técnico - Focado em habilidades e conhecimento" },
+                      { value: "pouco", label: "Pouco tempo (1-2h por semana)" },
+                      { value: "moderado", label: "Tempo moderado (3-5h por semana)" },
+                      { value: "bastante", label: "Bastante tempo (mais de 5h por semana)" },
+                      { value: "integral", label: "Tempo integral - estou totalmente focado(a) nisso" },
                     ].map((option) => (
                       <div key={option.value} className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:border-primary hover:bg-primary-lighter/20 transition-colors cursor-pointer">
                         <RadioGroupItem value={option.value} id={option.value} />

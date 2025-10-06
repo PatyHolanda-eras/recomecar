@@ -10,29 +10,8 @@ import { encontrarMelhorConselheiro } from "@/lib/matching";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Sparkles, Calendar } from "lucide-react";
 
-// Mock de conselheiros - em produção viria do Supabase
-const mockConselheiros: Conselheiro[] = [
-  {
-    id: "1",
-    nome: "Camila Alves",
-    foto_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Camila",
-    areas: ["tecnologia", "gestao"],
-    nivel_experiencia: "avancado",
-    estilo: "pratico",
-    formato: ["Conversas individuais", "Feedback sobre projetos"],
-    temas_preferidos: ["Como começar uma transição", "Que habilidades desenvolver"],
-  },
-  {
-    id: "2",
-    nome: "Carlos Mendes",
-    foto_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
-    areas: ["negocios", "vendas"],
-    nivel_experiencia: "intermediario",
-    estilo: "inspirador",
-    formato: ["Sessões em grupo", "Recursos e materiais"],
-    temas_preferidos: ["Networking e conexões", "Identificar oportunidades"],
-  },
-];
+// Lista vazia - sem conselheiros disponíveis no momento
+const mockConselheiros: Conselheiro[] = [];
 
 const DiagnosticoResultados = () => {
   const navigate = useNavigate();
@@ -55,11 +34,36 @@ const DiagnosticoResultados = () => {
     }
   }, [navigate]);
 
-  const handleAgendarConversa = () => {
-    // Aqui salvaria no Supabase em produção
+  const handleNotificarEquipe = () => {
+    if (!respostas || !resultados) return;
+    
+    const diagnosticoTexto = `
+NOVO VIAJANTE SEM MATCH DE CONSELHEIRO
+
+Nome: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).nomeCompleto : "Não informado"}
+Email: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).email : "Não informado"}
+WhatsApp: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).whatsapp : "Não informado"}
+
+DIAGNÓSTICO DE CARREIRA:
+
+Objetivo: ${respostas.objetivo}
+Momento de carreira: ${respostas.nivel}
+Áreas de interesse: ${respostas.areas.join(", ")}
+Desafios: ${respostas.duvidas.join(", ")}
+Tipo de apoio: ${respostas.tipoApoio.join(", ")}
+Disponibilidade: ${respostas.estiloConselheiro}
+
+Arquétipo: ${resultados.arquetipo.nome}
+Descrição: ${resultados.arquetipo.descricao}
+    `.trim();
+
+    const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Viajante sem Match - ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).nomeCompleto : "Viajante"}&body=${encodeURIComponent(diagnosticoTexto)}`;
+    
+    window.location.href = mailtoLink;
+    
     toast({
-      title: "Interesse enviado!",
-      description: "Seu interesse foi enviado à nossa equipe, e em breve você receberá um contato para o agendamento.",
+      title: "Notificação enviada!",
+      description: "Nossa equipe foi informada e entrará em contato em breve.",
     });
   };
 
@@ -141,8 +145,8 @@ const DiagnosticoResultados = () => {
               </CardContent>
             </Card>
 
-            {/* Coluna Direita: Card de Match com Conselheiro */}
-            {melhorMatch && (
+            {/* Coluna Direita: Card de Match com Conselheiro ou Mensagem de No-Match */}
+            {melhorMatch ? (
               <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-2 border-[hsl(145,63%,49%)] bg-card h-fit">
                 <CardHeader className="p-8 pb-6">
                   <div className="text-center mb-6">
@@ -200,12 +204,40 @@ const DiagnosticoResultados = () => {
                   </div>
 
                   <Button 
-                    onClick={handleAgendarConversa} 
+                    onClick={handleNotificarEquipe} 
                     size="lg" 
                     className="w-full bg-[hsl(145,63%,49%)] hover:bg-[hsl(145,63%,42%)] text-white"
                   >
                     <Calendar className="mr-2 h-4 w-4" />
                     Agendar Conversa
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-2 border-accent bg-card h-fit">
+                <CardHeader className="p-8 pb-6">
+                  <div className="text-center mb-6">
+                    <div className="flex justify-center mb-4">
+                      <div className="w-20 h-20 bg-accent/20 rounded-full flex items-center justify-center text-4xl">
+                        💜
+                      </div>
+                    </div>
+                    <CardTitle className="text-2xl font-bold leading-[1.1] text-foreground mb-4">
+                      Estamos trabalhando para você!
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-8 pb-8">
+                  <p className="text-base text-foreground leading-[1.6] mb-6 text-center">
+                    Que pena, nesse momento não encontramos um conselheiro para te apoiar, mas a nossa equipe foi informada sobre o seu interesse e vai buscar para você. Pedimos que aguarde, pois em breve entraremos em contato!
+                  </p>
+                  
+                  <Button 
+                    onClick={handleNotificarEquipe} 
+                    size="lg" 
+                    className="w-full"
+                  >
+                    Notificar Equipe
                   </Button>
                 </CardContent>
               </Card>
