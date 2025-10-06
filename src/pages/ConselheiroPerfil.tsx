@@ -13,6 +13,9 @@ import { ConselheiroRespostas } from "@/types/diagnostico";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { conselheiroPerfilSchema } from "@/lib/validationSchemas";
+import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
+import { z } from "zod";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
@@ -28,11 +31,34 @@ const ConselheiroPerfil = () => {
     estiloAconselhamento: "",
     formatoPreferido: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleNext = async () => {
     if (step < totalSteps) {
       setStep(step + 1);
+      setErrors({});
     } else {
+      // Validate final step
+      try {
+        conselheiroPerfilSchema.parse(respostas);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const fieldErrors: Record<string, string> = {};
+          error.errors.forEach((err) => {
+            if (err.path[0]) {
+              fieldErrors[err.path[0] as string] = err.message;
+            }
+          });
+          setErrors(fieldErrors);
+          toast({
+            title: "Validação falhou",
+            description: "Por favor, preencha todos os campos obrigatórios.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       try {
         // Get lead data from localStorage
         const leadData = localStorage.getItem("lead_data");
@@ -53,7 +79,8 @@ const ConselheiroPerfil = () => {
 
         if (error) throw error;
 
-        localStorage.setItem("conselheiro_respostas", JSON.stringify(respostas));
+        setWithTimestamp("conselheiro_respostas", JSON.stringify(respostas));
+        clearFormData();
         
         toast({
           title: "Perfil salvo!",
@@ -92,7 +119,7 @@ const ConselheiroPerfil = () => {
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return respostas.miniBio.trim() !== "" && respostas.areas.length > 0;
+        return respostas.miniBio.trim().length >= 50 && respostas.areas.length > 0;
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
       case 3:
@@ -139,15 +166,24 @@ const ConselheiroPerfil = () => {
                 <div className="space-y-8">
                   <div>
                     <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
-                      Mini-bio
+                      Mini-bio (50-1000 caracteres) *
                     </Label>
                     <Textarea
                       id="miniBio"
                       placeholder="Descreva sua experiência e como você pode ajudar. Ex: 'Estrategista de produto com 10+ anos...'"
                       value={respostas.miniBio}
-                      onChange={(e) => setRespostas({ ...respostas, miniBio: e.target.value })}
+                      onChange={(e) => {
+                        setRespostas({ ...respostas, miniBio: e.target.value });
+                        setErrors({ ...errors, miniBio: "" });
+                      }}
                       className="min-h-[120px] text-base"
                     />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {respostas.miniBio.length}/1000 caracteres
+                    </p>
+                    {errors.miniBio && (
+                      <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>
+                    )}
                   </div>
 
                   <div>

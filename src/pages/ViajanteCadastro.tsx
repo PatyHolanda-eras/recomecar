@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { viajanteSchema } from "@/lib/validationSchemas";
+import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
+import { z } from "zod";
 
 const ViajanteCadastro = () => {
   const navigate = useNavigate();
@@ -15,17 +18,26 @@ const ViajanteCadastro = () => {
     email: "",
     whatsapp: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     
-    if (!formData.nomeCompleto || !formData.email || !formData.whatsapp) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos.",
-        variant: "destructive",
-      });
-      return;
+    // Validate with Zod
+    try {
+      viajanteSchema.parse(formData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        return;
+      }
     }
 
     try {
@@ -35,23 +47,24 @@ const ViajanteCadastro = () => {
         .insert([{
           nome_completo: formData.nomeCompleto,
           email: formData.email,
-          whatsapp: formData.whatsapp
+          whatsapp: formData.whatsapp || null
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      // Store viajante_id in localStorage for later use
-      localStorage.setItem("viajante_id", data.id);
-      localStorage.setItem("lead_data", JSON.stringify(formData));
+      // Store only ID with timestamp
+      setWithTimestamp("viajante_id", data.id);
+      
+      // Clear sensitive form data after successful submission
+      clearFormData();
       
       toast({
         title: "Cadastro realizado!",
         description: "Agora vamos ao seu diagnóstico de carreira.",
       });
       
-      // Navegar para o diagnóstico
       navigate("/diagnostico");
     } catch (error) {
       toast({
@@ -103,10 +116,16 @@ const ViajanteCadastro = () => {
                   type="text"
                   placeholder="Seu nome completo"
                   value={formData.nomeCompleto}
-                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, nomeCompleto: e.target.value });
+                    setErrors({ ...errors, nomeCompleto: "" });
+                  }}
                   className="mt-2"
                   required
                 />
+                {errors.nomeCompleto && (
+                  <p className="text-sm text-destructive mt-1">{errors.nomeCompleto}</p>
+                )}
               </div>
 
               <div>
@@ -118,25 +137,36 @@ const ViajanteCadastro = () => {
                   type="email"
                   placeholder="seu@email.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    setErrors({ ...errors, email: "" });
+                  }}
                   className="mt-2"
                   required
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="whatsapp" className="text-base font-semibold">
-                  WhatsApp *
+                  WhatsApp
                 </Label>
                 <Input
                   id="whatsapp"
                   type="tel"
-                  placeholder="(00) 00000-0000"
+                  placeholder="(11) 99999-9999"
                   value={formData.whatsapp}
-                  onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, whatsapp: e.target.value });
+                    setErrors({ ...errors, whatsapp: "" });
+                  }}
                   className="mt-2"
-                  required
                 />
+                {errors.whatsapp && (
+                  <p className="text-sm text-destructive mt-1">{errors.whatsapp}</p>
+                )}
               </div>
 
               <Button type="submit" size="lg" className="w-full">

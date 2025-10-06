@@ -13,6 +13,9 @@ import { gerarResultados } from "@/lib/gerarResultados";
 import { Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { diagnosticoSchema } from "@/lib/validationSchemas";
+import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
+import { z } from "zod";
 
 const TOTAL_STEPS = 6;
 
@@ -28,18 +31,27 @@ const Diagnostico = () => {
   const handleNext = async () => {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
-      // Salvar no localStorage
-      localStorage.setItem("diagnostico_progress", JSON.stringify({ step: step + 1, respostas }));
     } else {
+      // Validate before submission
       try {
-        // Finalizar diagnóstico
+        diagnosticoSchema.parse(respostas);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          toast({
+            title: "Validação falhou",
+            description: "Por favor, preencha todos os campos obrigatórios.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      try {
         const resultados = gerarResultados(respostas as DiagnosticoRespostas);
         
-        // Get viajante_id from localStorage
         const viajanteId = localStorage.getItem("viajante_id");
         
         if (viajanteId) {
-          // Save respostas to Supabase
           const { error: respostasError } = await supabase
             .from('diagnostico_respostas')
             .insert([{
@@ -49,7 +61,6 @@ const Diagnostico = () => {
 
           if (respostasError) throw respostasError;
 
-          // Save resultados to Supabase
           const { error: resultadosError } = await supabase
             .from('diagnostico_resultados')
             .insert([{
@@ -61,12 +72,12 @@ const Diagnostico = () => {
           if (resultadosError) throw resultadosError;
         }
 
-        localStorage.setItem("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
+        setWithTimestamp("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
+        clearFormData();
         navigate("/diagnostico/resultados");
       } catch (error) {
-        // Still navigate even if save fails
         const resultados = gerarResultados(respostas as DiagnosticoRespostas);
-        localStorage.setItem("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
+        setWithTimestamp("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
         
         toast({
           title: "Aviso",
