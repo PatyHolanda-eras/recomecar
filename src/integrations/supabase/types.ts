@@ -117,6 +117,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "diagnostico_resultados_conselheiro_id_fkey"
+            columns: ["conselheiro_id"]
+            isOneToOne: false
+            referencedRelation: "conselheiros_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "diagnostico_resultados_viajante_id_fkey"
             columns: ["viajante_id"]
             isOneToOne: false
@@ -203,7 +210,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      conselheiros_public: {
+        Row: {
+          anos_experiencia: number | null
+          areas_atuacao: string[] | null
+          arquetipo: string | null
+          bio: string | null
+          created_at: string | null
+          id: string | null
+          nome_completo: string | null
+        }
+        Insert: {
+          anos_experiencia?: number | null
+          areas_atuacao?: string[] | null
+          arquetipo?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          nome_completo?: string | null
+        }
+        Update: {
+          anos_experiencia?: number | null
+          areas_atuacao?: string[] | null
+          arquetipo?: string | null
+          bio?: string | null
+          created_at?: string | null
+          id?: string | null
+          nome_completo?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
