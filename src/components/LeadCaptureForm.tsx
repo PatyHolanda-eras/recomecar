@@ -47,9 +47,6 @@ export const LeadCaptureForm = ({ onClose }: LeadCaptureFormProps) => {
 
       if (error) throw error;
       
-      // Also store in localStorage for backward compatibility
-      localStorage.setItem("leadData", JSON.stringify(formData));
-      
       // Navigate to inscricao page
       navigate("/inscricao");
       onClose();

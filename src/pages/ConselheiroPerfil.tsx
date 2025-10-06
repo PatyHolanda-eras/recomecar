@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import { z } from "zod";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [step, setStep] = useState(1);
   const totalSteps = 3;
 
@@ -32,6 +34,12 @@ const ConselheiroPerfil = () => {
     formatoPreferido: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   const handleNext = async () => {
     if (step < totalSteps) {
@@ -59,18 +67,25 @@ const ConselheiroPerfil = () => {
         }
       }
 
-      try {
-        // Get lead data from localStorage
-        const leadData = localStorage.getItem("lead_data");
-        const lead = leadData ? JSON.parse(leadData) : {};
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Você precisa estar autenticado.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
 
-        // Save to Supabase
+      try {
+        // Save to Supabase using auth.uid()
         const { error } = await supabase
           .from('conselheiros')
           .insert([{
-            nome_completo: lead.nomeCompleto || '',
-            email: lead.email || '',
-            whatsapp: lead.whatsapp || null,
+            id: user.id,
+            nome_completo: user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
+            email: user.email || '',
+            whatsapp: user.user_metadata?.whatsapp || null,
             anos_experiencia: null,
             areas_atuacao: respostas.areas,
             arquetipo: null,
@@ -128,6 +143,10 @@ const ConselheiroPerfil = () => {
         return false;
     }
   };
+
+  if (loading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">

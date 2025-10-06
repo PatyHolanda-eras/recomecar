@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,17 @@ const mockConselheiros: Conselheiro[] = [];
 
 const DiagnosticoResultados = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [resultados, setResultados] = useState<DiagnosticoResultadosType | null>(null);
   const [respostas, setRespostas] = useState<DiagnosticoRespostas | null>(null);
   const [melhorMatch, setMelhorMatch] = useState<{ conselheiro: Conselheiro; score: number } | null>(null);
 
   useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+      return;
+    }
+
     const stored = localStorage.getItem("diagnostico_resultados");
     if (stored) {
       const { resultados: res, respostas: resp } = JSON.parse(stored);
@@ -37,7 +44,7 @@ const DiagnosticoResultados = () => {
     } else {
       navigate("/diagnostico");
     }
-  }, [navigate]);
+  }, [navigate, user, loading]);
 
   const handleNotificarEquipe = (
     resp?: DiagnosticoRespostas,
@@ -47,14 +54,14 @@ const DiagnosticoResultados = () => {
     const currentRespostas = resp || respostas;
     const currentResultados = res || resultados;
     
-    if (!currentRespostas || !currentResultados) return;
+    if (!currentRespostas || !currentResultados || !user) return;
     
     const diagnosticoTexto = `
 NOVO VIAJANTE SEM MATCH DE CONSELHEIRO
 
-Nome: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).nomeCompleto : "Não informado"}
-Email: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).email : "Não informado"}
-WhatsApp: ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).whatsapp : "Não informado"}
+Nome: ${user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || "Não informado"}
+Email: ${user.email || "Não informado"}
+WhatsApp: ${user.user_metadata?.whatsapp || "Não informado"}
 
 DIAGNÓSTICO DE CARREIRA:
 
@@ -69,7 +76,7 @@ Arquétipo: ${currentResultados.arquetipo.nome}
 Descrição: ${currentResultados.arquetipo.descricao}
     `.trim();
 
-    const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Viajante sem Match - ${localStorage.getItem("lead_data") ? JSON.parse(localStorage.getItem("lead_data")!).nomeCompleto : "Viajante"}&body=${encodeURIComponent(diagnosticoTexto)}`;
+    const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Viajante sem Match - ${user.user_metadata?.nomeCompleto || user.email}&body=${encodeURIComponent(diagnosticoTexto)}`;
     
     window.location.href = mailtoLink;
     
@@ -85,8 +92,8 @@ Descrição: ${currentResultados.arquetipo.descricao}
     handleNotificarEquipe(respostas || undefined, resultados || undefined, true);
   };
 
-  if (!resultados || !respostas) {
-    return <div>Carregando...</div>;
+  if (loading || !resultados || !respostas) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
   }
 
   return (

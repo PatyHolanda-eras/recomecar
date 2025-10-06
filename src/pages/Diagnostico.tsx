@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/diagnostico/ProgressBar";
 import { WizardStep } from "@/components/diagnostico/WizardStep";
@@ -21,12 +22,19 @@ const TOTAL_STEPS = 6;
 
 const Diagnostico = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [step, setStep] = useState(1);
   const [respostas, setRespostas] = useState<Partial<DiagnosticoRespostas>>({
     areas: [],
     duvidas: [],
     tipoApoio: [],
   });
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   const handleNext = async () => {
     if (step < TOTAL_STEPS) {
@@ -46,31 +54,37 @@ const Diagnostico = () => {
         }
       }
 
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Você precisa estar autenticado.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
       try {
         const resultados = gerarResultados(respostas as DiagnosticoRespostas);
-        
-        const viajanteId = localStorage.getItem("viajante_id");
-        
-        if (viajanteId) {
-          const { error: respostasError } = await supabase
-            .from('diagnostico_respostas')
-            .insert([{
-              viajante_id: viajanteId,
-              respostas: respostas
-            }]);
 
-          if (respostasError) throw respostasError;
+        const { error: respostasError } = await supabase
+          .from('diagnostico_respostas')
+          .insert([{
+            viajante_id: user.id,
+            respostas: respostas
+          }]);
 
-          const { error: resultadosError } = await supabase
-            .from('diagnostico_resultados')
-            .insert([{
-              viajante_id: viajanteId,
-              arquetipo: resultados.arquetipo.nome,
-              conselheiro_id: null
-            }]);
+        if (respostasError) throw respostasError;
 
-          if (resultadosError) throw resultadosError;
-        }
+        const { error: resultadosError } = await supabase
+          .from('diagnostico_resultados')
+          .insert([{
+            viajante_id: user.id,
+            arquetipo: resultados.arquetipo.nome,
+            conselheiro_id: null
+          }]);
+
+        if (resultadosError) throw resultadosError;
 
         setWithTimestamp("diagnostico_resultados", JSON.stringify({ respostas, resultados }));
         clearFormData();
@@ -125,6 +139,10 @@ const Diagnostico = () => {
         return false;
     }
   };
+
+  if (loading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">

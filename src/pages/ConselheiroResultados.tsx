@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,29 +11,32 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 
 const ConselheiroResultados = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [respostas, setRespostas] = useState<ConselheiroRespostas | null>(null);
 
   useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+      return;
+    }
+
     const stored = localStorage.getItem("conselheiro_respostas");
     if (stored) {
       setRespostas(JSON.parse(stored));
     } else {
       navigate("/conselheiro-perfil");
     }
-  }, [navigate]);
+  }, [navigate, user, loading]);
 
   const handleNotificarEquipe = () => {
-    if (!respostas) return;
-    
-    const leadData = localStorage.getItem("lead_data");
-    const lead = leadData ? JSON.parse(leadData) : null;
+    if (!respostas || !user) return;
     
     const perfilTexto = `
 NOVO CONSELHEIRO SEM MATCH DE VIAJANTE
 
-Nome: ${lead?.nomeCompleto || "Não informado"}
-Email: ${lead?.email || "Não informado"}
-WhatsApp: ${lead?.whatsapp || "Não informado"}
+Nome: ${user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || "Não informado"}
+Email: ${user.email || "Não informado"}
+WhatsApp: ${user.user_metadata?.whatsapp || "Não informado"}
 
 PERFIL DO CONSELHEIRO:
 
@@ -51,7 +55,7 @@ Estilo de Aconselhamento: ${respostas.estiloAconselhamento}
 Formato Preferido: ${respostas.formatoPreferido}
     `.trim();
 
-    const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Conselheiro sem Match - ${lead?.nomeCompleto || "Conselheiro"}&body=${encodeURIComponent(perfilTexto)}`;
+    const mailtoLink = `mailto:pathi.carpediem@gmail.com?subject=Novo Conselheiro sem Match - ${user.user_metadata?.nomeCompleto || user.email}&body=${encodeURIComponent(perfilTexto)}`;
     
     window.location.href = mailtoLink;
     
@@ -61,8 +65,8 @@ Formato Preferido: ${respostas.formatoPreferido}
     });
   };
 
-  if (!respostas) {
-    return <div>Carregando...</div>;
+  if (loading || !respostas) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
   }
 
   return (
