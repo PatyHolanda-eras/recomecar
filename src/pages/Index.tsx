@@ -55,9 +55,9 @@ const Index = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl min-h-[70vh]">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg min-h-[60vh]">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-1">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-start to-primary-end text-white px-6 py-3 rounded-full mb-8">
             <Star className="w-5 h-5" />
             <span className="font-semibold">Fase Piloto - Acesso Limitado</span>
           </div>
@@ -69,12 +69,12 @@ const Index = () => {
             </span>
           </h1>
 
-          <p className="text-xl text-muted-foreground mb-1 max-w-3xl mx-auto leading-[1.5]">
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-[1.5]">
             Navegue transições de carreira com confiança. Tenha orientação personalizada, conecte-se com uma comunidade
             de apoio e descubra seu caminho com nossa abordagem única de Diagnóstico de Carreira.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-1">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
             <Button size="lg" onClick={() => navigate("/inscricao")} className="text-base px-8 py-6">
               Participar do Programa Piloto
               <Compass className="ml-2 h-5 w-5" />
@@ -98,7 +98,7 @@ const Index = () => {
       </section>
 
       {/* Challenges Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-foreground leading-[1.1] tracking-[-0.01em]">
             O Desafio da Transição de Carreira
@@ -149,7 +149,7 @@ const Index = () => {
       </section>
 
       {/* Solution Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Nossa Abordagem para </span>
@@ -203,7 +203,7 @@ const Index = () => {
       </section>
 
       {/* Diagnosis Benefits Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Diagnóstico de Carreira: </span>
@@ -297,7 +297,7 @@ const Index = () => {
       </section>
 
       {/* Everything You Need Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Tudo que Você Precisa para </span>
@@ -386,7 +386,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Preço Simples e </span>
@@ -411,7 +411,7 @@ const Index = () => {
               <p className="text-muted-foreground">Tudo que você precisa para navegar sua transição de carreira</p>
             </CardHeader>
             <CardContent className="px-8 pb-8">
-              <ul className="space-y-4 text-left mb-1">
+              <ul className="space-y-4 text-left mb-8">
                 <li className="flex items-start gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <span>Diagnóstico Completo de Carreira</span>
@@ -457,7 +457,7 @@ const Index = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="flex items-center justify-center px-4 py-lg md:py-xl">
+      <section className="flex items-center justify-center px-4 py-md md:py-lg">
         <div className="max-w-3xl mx-auto w-full">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Perguntas </span>
@@ -583,7 +583,7 @@ const Index = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-2 text-white leading-[1.1] tracking-[-0.01em]">
             Pronto para Começar sua Jornada?
           </h2>
-          <p className="text-xl text-white/90 mb-1 leading-[1.5]">Primeiro, precisamos saber qual é o seu perfil.</p>
+          <p className="text-xl text-white/90 mb-8 leading-[1.5]">Primeiro, precisamos saber qual é o seu perfil.</p>
 
           <Card className="shadow-[0_4px_16px_rgba(0,0,0,0.15)] border-0 max-w-2xl mx-auto">
             <CardContent className="p-8">
@@ -592,9 +592,9 @@ const Index = () => {
               </div>
 
               <h3 className="text-2xl font-bold mb-2">Qual é o Seu Perfil?</h3>
-              <p className="text-muted-foreground mb-1">O que te traz aqui?</p>
+              <p className="text-muted-foreground mb-8">O que te traz aqui?</p>
 
-              <div className="grid md:grid-cols-2 gap-4 mb-1">
+              <div className="grid md:grid-cols-2 gap-4 mb-8">
                 <Card
                   className="cursor-pointer hover:shadow-md transition-all border-2 border-primary bg-primary-lighter"
                   onClick={() => setShowLeadForm(true)}
