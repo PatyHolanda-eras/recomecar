@@ -43,7 +43,7 @@ const Index = () => {
             <span className="font-semibold">Fase Piloto - Acesso Limitado</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-[1.1] tracking-[-0.01em]">
+          <h1 className="text-5xl md:text-6xl font-bold mb-3 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Encontre clareza no seu </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               próximo passo profissional
@@ -242,7 +242,7 @@ const Index = () => {
                   <Compass className="h-7 w-7 text-white" />
                 </div>
                 
-                <h3 className="text-2xl font-bold text-center mb-6">O que Você Descobrirá</h3>
+                <h3 className="text-2xl font-bold text-center mb-2">O que Você Descobrirá</h3>
                 
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3">
@@ -539,7 +539,7 @@ const Index = () => {
       {/* Final CTA Section */}
       <section className="flex items-center justify-center bg-gradient-to-r from-primary-start to-primary-end px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-4xl md:text-5xl font-bold mb-2 text-white leading-[1.1] tracking-[-0.01em]">
             Pronto para Começar sua Jornada?
           </h2>
           <p className="text-xl text-white/90 mb-8 leading-[1.5]">
@@ -552,7 +552,7 @@ const Index = () => {
                 <User className="h-8 w-8 text-white" />
               </div>
               
-              <h3 className="text-2xl font-bold mb-4">Qual é o Seu Perfil?</h3>
+              <h3 className="text-2xl font-bold mb-2">Qual é o Seu Perfil?</h3>
               <p className="text-muted-foreground mb-8">O que te traz aqui?</p>
               
               <div className="grid md:grid-cols-2 gap-4 mb-8">
@@ -600,7 +600,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-lg mb-lg">
             <div>
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
+              <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
                 re.começar
               </h3>
               <p className="text-background/70 mb-6 leading-[1.5]">
@@ -623,7 +623,7 @@ const Index = () => {
             </div>
 
             <div>
-              <h4 className="font-bold text-lg mb-4">Links Rápidos</h4>
+              <h4 className="font-bold text-lg mb-2">Links Rápidos</h4>
               <ul className="space-y-2">
                 <li>
                   <a href="#" className="text-background/70 hover:text-background transition-colors">
@@ -654,7 +654,7 @@ const Index = () => {
             </div>
 
             <div>
-              <h4 className="font-bold text-lg mb-4">Suporte</h4>
+              <h4 className="font-bold text-lg mb-2">Suporte</h4>
               <ul className="space-y-2">
                 <li>
                   <a href="#" className="text-background/70 hover:text-background transition-colors">
