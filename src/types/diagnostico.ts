@@ -44,11 +44,23 @@ export interface Conselheiro {
   id: string;
   nome: string;
   foto_url: string;
+  mini_bio: string;
   areas: string[];
   nivel_experiencia: string;
-  estilo: string;
-  formato: string[];
+  publicos_apoio: string[];
   temas_preferidos: string[];
+  estilo: string;
+  formato: string;
+}
+
+export interface ConselheiroRespostas {
+  miniBio: string;
+  areas: string[];
+  nivelExperiencia: string;
+  publicosApoio: string[];
+  temasPreferidos: string[];
+  estiloAconselhamento: string;
+  formatoPreferido: string;
 }
 
 export interface Match {
