@@ -84,7 +84,7 @@ const Index = () => {
       {/* Challenges Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-foreground leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 text-foreground leading-[1.1] tracking-[-0.01em]">
             O Desafio da Transição de Carreira
           </h2>
           <p className="text-center text-muted-foreground mb-md max-w-3xl mx-auto leading-[1.5]">
@@ -134,7 +134,7 @@ const Index = () => {
       {/* Solution Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Nossa Abordagem para </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               Clareza Profissional
@@ -187,7 +187,7 @@ const Index = () => {
       {/* Diagnosis Benefits Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Diagnóstico de Carreira: </span>
             <span className="bg-gradient-to-r from-[#4169E1] to-[#8B3DFF] bg-clip-text text-transparent">
               Sua Vantagem Estratégica
@@ -284,7 +284,7 @@ const Index = () => {
       {/* Everything You Need Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Tudo que Você Precisa para </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               Sucesso Profissional
@@ -373,7 +373,7 @@ const Index = () => {
       {/* Pricing Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Preço Simples e </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               Transparente
@@ -450,7 +450,7 @@ const Index = () => {
       {/* FAQ Section */}
       <section className="flex items-center justify-center px-4 py-lg md:py-xl">
         <div className="max-w-3xl mx-auto w-full">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 leading-[1.1] tracking-[-0.01em]">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-2 leading-[1.1] tracking-[-0.01em]">
             <span className="text-foreground">Perguntas </span>
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               Frequentes
