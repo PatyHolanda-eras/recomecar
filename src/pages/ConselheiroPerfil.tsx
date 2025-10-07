@@ -80,20 +80,22 @@ const ConselheiroPerfil = () => {
       }
 
       try {
-        // Save to Supabase using auth.uid()
+        // Save to Supabase using auth.uid() with upsert to handle both new and existing records
         const { error } = await supabase
           .from('conselheiros')
-          .insert([{
+          .upsert([{
             id: user.id,
             nome_completo: user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
             email: user.email || '',
             whatsapp: user.user_metadata?.whatsapp || null,
-            linkedin_url: respostas.linkedinUrl || null,
+            linkedin_url: respostas.linkedinUrl,
             anos_experiencia: null,
             areas_atuacao: respostas.areas,
             arquetipo: null,
             bio: respostas.miniBio
-          }]);
+          }], {
+            onConflict: 'id'
+          });
 
         if (error) throw error;
 
