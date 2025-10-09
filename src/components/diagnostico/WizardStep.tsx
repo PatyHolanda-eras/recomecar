@@ -10,6 +10,7 @@ interface WizardStepProps {
   showPrev?: boolean;
   isLastStep?: boolean;
   nextDisabled?: boolean;
+  nextButtonText?: string;
 }
 
 export const WizardStep = ({
@@ -20,6 +21,7 @@ export const WizardStep = ({
   showPrev = true,
   isLastStep = false,
   nextDisabled = false,
+  nextButtonText,
 }: WizardStepProps) => {
   return (
     <motion.div
@@ -46,12 +48,12 @@ export const WizardStep = ({
         )}
         
         {showNext && (
-          <Button
+            <Button
             onClick={onNext}
             disabled={nextDisabled}
             className="gap-2"
           >
-            {isLastStep ? "Ver Resultados" : "Próximo"}
+            {nextButtonText || (isLastStep ? "Ver Resultados" : "Próximo")}
             <ArrowRight className="h-4 w-4" />
           </Button>
         )}

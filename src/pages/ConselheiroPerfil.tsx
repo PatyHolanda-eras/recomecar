@@ -22,9 +22,14 @@ import { formatPhoneNumber } from "@/lib/phoneFormatter";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const { user, loading, signUp } = useAuth();
+  const [step, setStep] = useState(0);
+  const totalSteps = 4;
+
+  const [nomeCompleto, setNomeCompleto] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   const [respostas, setRespostas] = useState<ConselheiroRespostas>({
     miniBio: "",
@@ -37,15 +42,9 @@ const ConselheiroPerfil = () => {
     formatoPreferido: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [whatsapp, setWhatsapp] = useState("");
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-      return;
-    }
-
-    // Check if user already has a profile
+    // Check if user already has a profile (only if authenticated)
     const checkExistingProfile = async () => {
       if (user) {
         const { data } = await supabase
@@ -65,9 +64,70 @@ const ConselheiroPerfil = () => {
     };
 
     checkExistingProfile();
-  }, [user, loading, navigate]);
+  }, [user, navigate]);
 
   const handleNext = async () => {
+    // Step 0: Create account
+    if (step === 0) {
+      if (!nomeCompleto || !email || !senha || !whatsapp) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Preencha todos os campos para continuar.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate email
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        toast({
+          title: "Email inválido",
+          description: "Por favor, insira um email válido.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate password
+      if (senha.length < 6) {
+        toast({
+          title: "Senha muito curta",
+          description: "A senha deve ter pelo menos 6 caracteres.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create account
+      try {
+        const { error } = await signUp(email, senha, { nomeCompleto });
+        
+        if (error) {
+          toast({
+            title: "Erro ao criar conta",
+            description: error.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Conta criada!",
+          description: "Continue preenchendo seu perfil.",
+        });
+        
+        setStep(1);
+        setErrors({});
+      } catch (error) {
+        toast({
+          title: "Erro ao criar conta",
+          description: "Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+
     if (step < totalSteps) {
       setStep(step + 1);
       setErrors({});
@@ -119,8 +179,8 @@ const ConselheiroPerfil = () => {
           .from('conselheiros')
           .upsert([{
             id: user.id,
-            nome_completo: user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
-            email: user.email || '',
+            nome_completo: nomeCompleto || user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
+            email: email || user.email || '',
             whatsapp: whatsapp,
             linkedin_url: respostas.linkedinUrl,
             anos_experiencia: null,
@@ -175,9 +235,13 @@ const ConselheiroPerfil = () => {
 
   const isStepValid = () => {
     switch (step) {
+      case 0:
+        return nomeCompleto.trim().length > 0 && 
+               email.trim().length > 0 && 
+               senha.length >= 6 &&
+               whatsapp.trim().length > 0;
       case 1:
-        return whatsapp.trim().length > 0 && 
-               respostas.miniBio.trim().length >= 50 && 
+        return respostas.miniBio.trim().length >= 50 && 
                respostas.areas.length > 0 && 
                respostas.linkedinUrl.trim().length > 0 && 
                /linkedin\.com/.test(respostas.linkedinUrl);
@@ -222,15 +286,65 @@ const ConselheiroPerfil = () => {
 
         <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0 mt-8">
           <CardContent className="p-8">
-            {step === 1 && (
+            {step === 0 && (
               <WizardStep
                 onNext={handleNext}
                 showPrev={false}
                 nextDisabled={!isStepValid()}
               >
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <Label htmlFor="whatsapp" className="text-lg font-semibold text-foreground mb-3 block">
+                    <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
+                    <CardDescription>Preencha seus dados para começar</CardDescription>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="nomeCompleto" className="text-base font-semibold">
+                      Nome Completo *
+                    </Label>
+                    <Input
+                      id="nomeCompleto"
+                      type="text"
+                      placeholder="Digite seu nome completo"
+                      value={nomeCompleto}
+                      onChange={(e) => setNomeCompleto(e.target.value)}
+                      className="mt-2"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-base font-semibold">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-2"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="senha" className="text-base font-semibold">
+                      Senha *
+                    </Label>
+                    <Input
+                      id="senha"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      className="mt-2"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="whatsapp" className="text-base font-semibold">
                       WhatsApp *
                     </Label>
                     <Input
@@ -242,14 +356,24 @@ const ConselheiroPerfil = () => {
                         const formatted = formatPhoneNumber(e.target.value);
                         setWhatsapp(formatted);
                       }}
-                      className="text-base"
+                      className="mt-2"
                       required
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Formato automático: (XX) XXXXX-XXXX
                     </p>
                   </div>
+                </div>
+              </WizardStep>
+            )}
 
+            {step === 1 && (
+              <WizardStep
+                onNext={handleNext}
+                onPrev={handlePrev}
+                nextDisabled={!isStepValid()}
+              >
+                <div className="space-y-8">
                   <div>
                     <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
                       Mini-bio (50-1000 caracteres) *
@@ -386,6 +510,7 @@ const ConselheiroPerfil = () => {
                 onPrev={handlePrev}
                 isLastStep
                 nextDisabled={!isStepValid()}
+                nextButtonText="Finalizar Cadastro"
               >
                 <div className="space-y-8">
                   <div>
