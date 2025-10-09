@@ -15,10 +15,22 @@ const emailSchema = z.string()
 
 const whatsappSchema = z.string()
   .trim()
-  .regex(/^\(\d{2}\)\s?\d{4,5}-?\d{4}$/, "Formato inválido. Use: (11) 99999-9999")
-  .max(20, "WhatsApp inválido")
-  .optional()
-  .or(z.literal(''));
+  .min(1, "WhatsApp é obrigatório")
+  .transform((val) => {
+    // Remove all non-digit characters
+    const digits = val.replace(/\D/g, '');
+    
+    // Format to (XX) XXXXX-XXXX or (XX) XXXX-XXXX
+    if (digits.length === 11) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    } else if (digits.length === 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+    return val;
+  })
+  .refine((val) => /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(val), {
+    message: "Formato inválido. Digite apenas números (DDD + telefone)"
+  });
 
 const bioSchema = z.string()
   .trim()
@@ -36,6 +48,7 @@ export const viajanteSchema = z.object({
   nomeCompleto: nomeCompletoSchema,
   email: emailSchema,
   whatsapp: whatsappSchema,
+  linkedinUrl: linkedinUrlSchema,
 });
 
 export const conselheiroPerfilSchema = z.object({

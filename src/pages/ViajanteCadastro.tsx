@@ -11,6 +11,7 @@ import { viajanteSchema } from "@/lib/validationSchemas";
 import { clearFormData } from "@/lib/storageCleanup";
 import { useAuth } from "@/lib/auth";
 import { z } from "zod";
+import { formatPhoneNumber } from "@/lib/phoneFormatter";
 
 const ViajanteCadastro = () => {
   const navigate = useNavigate();
@@ -19,14 +20,39 @@ const ViajanteCadastro = () => {
     nomeCompleto: "",
     email: "",
     whatsapp: "",
+    linkedinUrl: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [existingProfile, setExistingProfile] = useState<boolean>(false);
 
   useEffect(() => {
     if (!authLoading && !session) {
       navigate("/auth?redirect=/viajante-cadastro");
+      return;
     }
-  }, [session, authLoading, navigate]);
+
+    // Check if user already has a profile
+    const checkExistingProfile = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('viajantes')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          setExistingProfile(true);
+          toast({
+            title: "Você já possui cadastro",
+            description: "Redirecionando para o diagnóstico...",
+          });
+          navigate("/diagnostico");
+        }
+      }
+    };
+
+    checkExistingProfile();
+  }, [session, authLoading, navigate, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,15 +85,18 @@ const ViajanteCadastro = () => {
         return;
       }
 
-      // Save to Supabase with authenticated user ID
+      // Save to Supabase with authenticated user ID using upsert
       const { error } = await supabase
         .from('viajantes')
-        .insert([{
+        .upsert([{
           id: user.id,
           nome_completo: formData.nomeCompleto,
           email: formData.email,
-          whatsapp: formData.whatsapp || null
-        }]);
+          whatsapp: formData.whatsapp,
+          linkedin_url: formData.linkedinUrl
+        }], {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
       
@@ -169,21 +198,47 @@ const ViajanteCadastro = () => {
 
               <div>
                 <Label htmlFor="whatsapp" className="text-base font-semibold">
-                  WhatsApp
+                  WhatsApp *
                 </Label>
                 <Input
                   id="whatsapp"
                   type="tel"
-                  placeholder="(11) 99999-9999"
+                  placeholder="Digite apenas números"
                   value={formData.whatsapp}
                   onChange={(e) => {
-                    setFormData({ ...formData, whatsapp: e.target.value });
+                    const formatted = formatPhoneNumber(e.target.value);
+                    setFormData({ ...formData, whatsapp: formatted });
                     setErrors({ ...errors, whatsapp: "" });
                   }}
                   className="mt-2"
+                  required
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Formato automático: (XX) XXXXX-XXXX
+                </p>
                 {errors.whatsapp && (
                   <p className="text-sm text-destructive mt-1">{errors.whatsapp}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="linkedinUrl" className="text-base font-semibold">
+                  URL do LinkedIn *
+                </Label>
+                <Input
+                  id="linkedinUrl"
+                  type="url"
+                  placeholder="https://www.linkedin.com/in/seu-perfil"
+                  value={formData.linkedinUrl}
+                  onChange={(e) => {
+                    setFormData({ ...formData, linkedinUrl: e.target.value });
+                    setErrors({ ...errors, linkedinUrl: "" });
+                  }}
+                  className="mt-2"
+                  required
+                />
+                {errors.linkedinUrl && (
+                  <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>
                 )}
               </div>
 

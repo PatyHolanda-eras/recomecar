@@ -18,6 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { conselheiroPerfilSchema } from "@/lib/validationSchemas";
 import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
 import { z } from "zod";
+import { formatPhoneNumber } from "@/lib/phoneFormatter";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
@@ -36,11 +37,34 @@ const ConselheiroPerfil = () => {
     formatoPreferido: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [whatsapp, setWhatsapp] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
+      return;
     }
+
+    // Check if user already has a profile
+    const checkExistingProfile = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('conselheiros')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          toast({
+            title: "Você já possui cadastro",
+            description: "Redirecionando para resultados...",
+          });
+          navigate("/conselheiro-resultados");
+        }
+      }
+    };
+
+    checkExistingProfile();
   }, [user, loading, navigate]);
 
   const handleNext = async () => {
@@ -80,6 +104,16 @@ const ConselheiroPerfil = () => {
       }
 
       try {
+        // Validate whatsapp before saving
+        if (!whatsapp || whatsapp.trim() === '') {
+          toast({
+            title: "WhatsApp obrigatório",
+            description: "Por favor, preencha seu número de WhatsApp.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Save to Supabase using auth.uid() with upsert to handle both new and existing records
         const { error } = await supabase
           .from('conselheiros')
@@ -87,7 +121,7 @@ const ConselheiroPerfil = () => {
             id: user.id,
             nome_completo: user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
             email: user.email || '',
-            whatsapp: user.user_metadata?.whatsapp || null,
+            whatsapp: whatsapp,
             linkedin_url: respostas.linkedinUrl,
             anos_experiencia: null,
             areas_atuacao: respostas.areas,
@@ -97,7 +131,10 @@ const ConselheiroPerfil = () => {
             onConflict: 'id'
           });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
 
         setWithTimestamp("conselheiro_respostas", JSON.stringify(respostas));
         clearFormData();
@@ -139,8 +176,11 @@ const ConselheiroPerfil = () => {
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return respostas.miniBio.trim().length >= 50 && respostas.areas.length > 0 && 
-               respostas.linkedinUrl.trim().length > 0 && /linkedin\.com/.test(respostas.linkedinUrl);
+        return whatsapp.trim().length > 0 && 
+               respostas.miniBio.trim().length >= 50 && 
+               respostas.areas.length > 0 && 
+               respostas.linkedinUrl.trim().length > 0 && 
+               /linkedin\.com/.test(respostas.linkedinUrl);
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
       case 3:
@@ -189,7 +229,28 @@ const ConselheiroPerfil = () => {
                 nextDisabled={!isStepValid()}
               >
                 <div className="space-y-8">
-                   <div>
+                  <div>
+                    <Label htmlFor="whatsapp" className="text-lg font-semibold text-foreground mb-3 block">
+                      WhatsApp *
+                    </Label>
+                    <Input
+                      id="whatsapp"
+                      type="tel"
+                      placeholder="Digite apenas números"
+                      value={whatsapp}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        setWhatsapp(formatted);
+                      }}
+                      className="text-base"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Formato automático: (XX) XXXXX-XXXX
+                    </p>
+                  </div>
+
+                  <div>
                     <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
                       Mini-bio (50-1000 caracteres) *
                     </Label>
