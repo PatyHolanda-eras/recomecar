@@ -185,6 +185,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          linkedin_url: string | null
           nome_completo: string
           whatsapp: string | null
         }
@@ -192,6 +193,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          linkedin_url?: string | null
           nome_completo: string
           whatsapp?: string | null
         }
@@ -199,6 +201,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          linkedin_url?: string | null
           nome_completo?: string
           whatsapp?: string | null
         }
