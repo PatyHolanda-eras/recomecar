@@ -128,7 +128,7 @@ const ConselheiroPerfil = () => {
       return;
     }
 
-    if (step < totalSteps) {
+    if (step < totalSteps - 1) {
       setStep(step + 1);
       setErrors({});
     } else {
