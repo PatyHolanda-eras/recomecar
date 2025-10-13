@@ -10,7 +10,8 @@ const Inscricao = () => {
   const [openModal, setOpenModal] = useState<'viajante' | 'conselheiro' | null>(null);
 
   const handleRoleSelection = (role: 'viajante' | 'conselheiro') => {
-    localStorage.setItem('role_preference', role);
+    // Store UI flow preference only (not for authorization)
+    localStorage.setItem('ui_registration_flow', role);
     
     if (role === 'viajante') {
       navigate('/viajante-cadastro');

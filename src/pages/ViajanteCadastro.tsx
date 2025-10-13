@@ -110,6 +110,7 @@ const ViajanteCadastro = () => {
       
       navigate("/diagnostico");
     } catch (error) {
+      console.error("Viajante submission failed:", { timestamp: Date.now() });
       toast({
         title: "Erro ao salvar cadastro",
         description: "Tente novamente mais tarde.",

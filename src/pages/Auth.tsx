@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { validatePassword, getPasswordRequirements } from "@/lib/passwordValidation";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -73,10 +75,12 @@ const Auth = () => {
       return;
     }
 
-    if (signupData.password.length < 6) {
+    // Validar força da senha
+    const passwordValidation = validatePassword(signupData.password);
+    if (!passwordValidation.valid) {
       toast({
-        title: "Erro",
-        description: "A senha deve ter pelo menos 6 caracteres.",
+        title: "Senha não atende os requisitos",
+        description: passwordValidation.errors[0],
         variant: "destructive",
       });
       return;
@@ -241,7 +245,7 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Mínimo 12 caracteres"
                       value={signupData.password}
                       onChange={(e) =>
                         setSignupData({ ...signupData, password: e.target.value })
@@ -249,6 +253,28 @@ const Auth = () => {
                       required
                       disabled={loading}
                     />
+                    {signupData.password && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Requisitos de senha:
+                        </p>
+                        {getPasswordRequirements().map((req) => {
+                          const isValid = req.regex.test(signupData.password);
+                          return (
+                            <div key={req.id} className="flex items-center gap-2 text-sm">
+                              {isValid ? (
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <span className={isValid ? "text-green-600" : "text-muted-foreground"}>
+                                {req.text}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   <div>

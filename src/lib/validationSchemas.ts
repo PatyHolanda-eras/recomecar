@@ -41,7 +41,31 @@ const linkedinUrlSchema = z.string()
   .trim()
   .min(1, "URL do LinkedIn é obrigatória")
   .url("URL inválida")
-  .regex(/linkedin\.com/, "Deve ser uma URL do LinkedIn");
+  .refine(
+    (url) => {
+      try {
+        const parsed = new URL(url);
+        // Aceita apenas domínios oficiais do LinkedIn
+        return ['www.linkedin.com', 'linkedin.com', 'br.linkedin.com', 'pt.linkedin.com']
+          .includes(parsed.hostname.toLowerCase());
+      } catch {
+        return false;
+      }
+    },
+    { message: "Deve ser uma URL válida do LinkedIn (linkedin.com)" }
+  )
+  .refine(
+    (url) => {
+      try {
+        const path = new URL(url).pathname;
+        // Valida formato do perfil: /in/nome-perfil
+        return /^\/in\/[\w-]+\/?$/.test(path);
+      } catch {
+        return false;
+      }
+    },
+    { message: "URL deve seguir o formato: linkedin.com/in/seu-perfil" }
+  );
 
 // Export schemas for each form
 export const viajanteSchema = z.object({

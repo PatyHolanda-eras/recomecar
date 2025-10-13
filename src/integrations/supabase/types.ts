@@ -21,6 +21,7 @@ export type Database = {
           arquetipo: string | null
           bio: string | null
           created_at: string
+          deleted_at: string | null
           email: string
           id: string
           linkedin_url: string | null
@@ -33,6 +34,7 @@ export type Database = {
           arquetipo?: string | null
           bio?: string | null
           created_at?: string
+          deleted_at?: string | null
           email: string
           id?: string
           linkedin_url?: string | null
@@ -45,6 +47,7 @@ export type Database = {
           arquetipo?: string | null
           bio?: string | null
           created_at?: string
+          deleted_at?: string | null
           email?: string
           id?: string
           linkedin_url?: string | null
@@ -56,18 +59,21 @@ export type Database = {
       diagnostico_respostas: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
           respostas: Json
           viajante_id: string
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           respostas: Json
           viajante_id: string
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           respostas?: Json
           viajante_id?: string
@@ -94,6 +100,7 @@ export type Database = {
           arquetipo: string
           conselheiro_id: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           viajante_id: string
         }
@@ -101,6 +108,7 @@ export type Database = {
           arquetipo: string
           conselheiro_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           viajante_id: string
         }
@@ -108,6 +116,7 @@ export type Database = {
           arquetipo?: string
           conselheiro_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           viajante_id?: string
         }
@@ -183,6 +192,7 @@ export type Database = {
       viajantes: {
         Row: {
           created_at: string
+          deleted_at: string | null
           email: string
           id: string
           linkedin_url: string | null
@@ -191,6 +201,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           email: string
           id?: string
           linkedin_url?: string | null
@@ -199,6 +210,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           email?: string
           id?: string
           linkedin_url?: string | null
@@ -230,6 +242,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      soft_delete_conselheiro_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      soft_delete_viajante_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {

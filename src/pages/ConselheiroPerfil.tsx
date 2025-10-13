@@ -12,13 +12,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { WizardStep } from "@/components/diagnostico/WizardStep";
 import { ProgressBar } from "@/components/diagnostico/ProgressBar";
 import { ConselheiroRespostas } from "@/types/diagnostico";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { conselheiroPerfilSchema } from "@/lib/validationSchemas";
 import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
 import { z } from "zod";
 import { formatPhoneNumber } from "@/lib/phoneFormatter";
+import { validatePassword, getPasswordRequirements } from "@/lib/passwordValidation";
 
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
@@ -89,10 +90,11 @@ const ConselheiroPerfil = () => {
       }
 
       // Validate password
-      if (senha.length < 6) {
+      const passwordValidation = validatePassword(senha);
+      if (!passwordValidation.valid) {
         toast({
-          title: "Senha muito curta",
-          description: "A senha deve ter pelo menos 6 caracteres.",
+          title: "Senha não atende os requisitos",
+          description: passwordValidation.errors[0],
           variant: "destructive",
         });
         return;
@@ -192,8 +194,13 @@ const ConselheiroPerfil = () => {
           });
 
         if (error) {
-          console.error('Supabase error:', error);
-          throw error;
+          console.error('Profile save failed:', { timestamp: Date.now() });
+          toast({
+            title: "Erro ao salvar perfil",
+            description: "Tente novamente mais tarde.",
+            variant: "destructive",
+          });
+          return;
         }
 
         setWithTimestamp("conselheiro_respostas", JSON.stringify(respostas));
@@ -238,7 +245,7 @@ const ConselheiroPerfil = () => {
       case 0:
         return nomeCompleto.trim().length > 0 && 
                email.trim().length > 0 && 
-               senha.length >= 6 &&
+               validatePassword(senha).valid &&
                whatsapp.trim().length > 0;
       case 1:
         return respostas.miniBio.trim().length >= 50 && 
@@ -335,12 +342,34 @@ const ConselheiroPerfil = () => {
                     <Input
                       id="senha"
                       type="password"
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Mínimo 12 caracteres"
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
                       className="mt-2"
                       required
                     />
+                    {senha && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Requisitos de senha:
+                        </p>
+                        {getPasswordRequirements().map((req) => {
+                          const isValid = req.regex.test(senha);
+                          return (
+                            <div key={req.id} className="flex items-center gap-2 text-sm">
+                              {isValid ? (
+                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <span className={isValid ? "text-green-600" : "text-muted-foreground"}>
+                                {req.text}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   <div>
