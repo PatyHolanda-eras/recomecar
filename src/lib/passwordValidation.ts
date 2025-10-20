@@ -8,8 +8,8 @@ export const validatePassword = (password: string): PasswordValidationResult => 
   const errors: string[] = [];
   
   // Requisitos de segurança
-  if (password.length < 12) {
-    errors.push("Mínimo de 12 caracteres");
+  if (password.length < 8) {
+    errors.push("Mínimo de 8 caracteres");
   }
   
   if (!/[A-Z]/.test(password)) {
@@ -42,8 +42,8 @@ const calculatePasswordStrength = (password: string): 'fraca' | 'média' | 'fort
   let score = 0;
   
   // Comprimento
-  if (password.length >= 12) score += 2;
-  if (password.length >= 16) score += 1;
+  if (password.length >= 8) score += 2;
+  if (password.length >= 12) score += 1;
   
   // Variedade de caracteres
   if (/[a-z]/.test(password)) score += 1;
@@ -74,7 +74,7 @@ export const getPasswordStrengthColor = (strength: 'fraca' | 'média' | 'forte')
 };
 
 export const getPasswordRequirements = () => [
-  { id: 'length', text: 'Mínimo de 12 caracteres', regex: /.{12,}/ },
+  { id: 'length', text: 'Mínimo de 8 caracteres', regex: /.{8,}/ },
   { id: 'uppercase', text: 'Letras maiúsculas (A-Z)', regex: /[A-Z]/ },
   { id: 'lowercase', text: 'Letras minúsculas (a-z)', regex: /[a-z]/ },
   { id: 'number', text: 'Números (0-9)', regex: /[0-9]/ },
