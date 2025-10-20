@@ -40,7 +40,13 @@ const bioSchema = z.string()
 const linkedinUrlSchema = z.string()
   .trim()
   .min(1, "URL do LinkedIn é obrigatória")
-  .url("URL inválida")
+  .transform((val) => {
+    // Add https:// if no protocol is present
+    if (!val.match(/^https?:\/\//i)) {
+      return `https://${val}`;
+    }
+    return val;
+  })
   .refine(
     (url) => {
       try {
@@ -58,13 +64,13 @@ const linkedinUrlSchema = z.string()
     (url) => {
       try {
         const path = new URL(url).pathname;
-        // Valida formato do perfil: /in/nome-perfil
-        return /^\/in\/[\w-]+\/?$/.test(path);
+        // Aceita /in/nome-perfil ou /nome-perfil
+        return /^\/(?:in\/)?[\w-]+\/?$/.test(path);
       } catch {
         return false;
       }
     },
-    { message: "URL deve seguir o formato: linkedin.com/in/seu-perfil" }
+    { message: "URL deve seguir o formato: linkedin.com/in/seu-perfil ou linkedin.com/seu-perfil" }
   );
 
 // Export schemas for each form
