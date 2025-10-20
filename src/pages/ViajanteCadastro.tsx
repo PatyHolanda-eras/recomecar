@@ -13,6 +13,31 @@ import { z } from "zod";
 import { formatPhoneNumber } from "@/lib/phoneFormatter";
 import { validatePassword, getPasswordRequirements } from "@/lib/passwordValidation";
 
+const normalizeLinkedIn = (input: string) => {
+  let u = (input || "").trim();
+  if (!u) return u;
+
+  // remove protocol and leading www.
+  u = u.replace(/^https?:\/\//i, "");
+  u = u.replace(/^www\./i, "");
+
+  // If starts with "linkedin" or "linkedin.com", remove that prefix and keep the path
+  if (/^linkedin(\.com)?(\/|$)/i.test(u)) {
+    u = u.replace(/^linkedin(\.com)?\/?/i, "");
+    u = u.replace(/^\/+/, "");
+    return `https://www.linkedin.com/${u}`;
+  }
+
+  // If contains linkedin.com anywhere, ensure https://www. prefix
+  if (/linkedin\.com/i.test(u)) {
+    u = u.replace(/^\/+/, "");
+    return `https://www.${u}`;
+  }
+
+  // otherwise return original trimmed input
+  return input.trim();
+};
+
 const ViajanteCadastro = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -31,7 +56,7 @@ const ViajanteCadastro = () => {
     e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
-    
+
     // Validate passwords match
     if (formData.senha !== formData.confirmarSenha) {
       setErrors({ confirmarSenha: "As senhas não coincidem" });
@@ -51,13 +76,20 @@ const ViajanteCadastro = () => {
       return;
     }
 
+    // Normalize LinkedIn input to accept variants like:
+    // www.linkedin/in/perfil
+    // http://www.linkedin/in/perfil
+    // https://www.linkedin/in/perfil
+    // linkedin/in/perfil
+    const normalizedLinkedin = normalizeLinkedIn(formData.linkedinUrl);
+
     // Validate profile data with Zod
     try {
       viajanteSchema.parse({
         nomeCompleto: formData.nomeCompleto,
         email: formData.email,
         whatsapp: formData.whatsapp,
-        linkedinUrl: formData.linkedinUrl,
+        linkedinUrl: normalizedLinkedin,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -89,9 +121,10 @@ const ViajanteCadastro = () => {
       if (signUpError) {
         toast({
           title: "Erro ao criar conta",
-          description: signUpError.message === "User already registered" 
-            ? "Este e-mail já está cadastrado. Faça login na página de autenticação."
-            : signUpError.message,
+          description:
+            signUpError.message === "User already registered"
+              ? "Este e-mail já está cadastrado. Faça login na página de autenticação."
+              : signUpError.message,
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -109,26 +142,26 @@ const ViajanteCadastro = () => {
       }
 
       // Save profile to viajantes table
-      const { error: profileError } = await supabase
-        .from('viajantes')
-        .insert([{
+      const { error: profileError } = await supabase.from("viajantes").insert([
+        {
           id: authData.user.id,
           nome_completo: formData.nomeCompleto,
           email: formData.email,
           whatsapp: formData.whatsapp,
-          linkedin_url: formData.linkedinUrl
-        }]);
+          linkedin_url: normalizedLinkedin,
+        },
+      ]);
 
       if (profileError) throw profileError;
-      
+
       // Clear sensitive form data after successful submission
       clearFormData();
-      
+
       toast({
         title: "Cadastro realizado!",
         description: "Agora vamos ao seu diagnóstico de carreira.",
       });
-      
+
       navigate("/diagnostico");
     } catch (error) {
       console.error("Viajante submission failed:", { timestamp: Date.now() });
@@ -144,11 +177,7 @@ const ViajanteCadastro = () => {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/inscricao")}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate("/inscricao")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
@@ -167,9 +196,7 @@ const ViajanteCadastro = () => {
 
         <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0">
           <CardHeader className="p-8">
-            <CardTitle className="text-2xl font-bold leading-[1.1] text-foreground">
-              Seus Dados
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold leading-[1.1] text-foreground">Seus Dados</CardTitle>
           </CardHeader>
           <CardContent className="px-8 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -189,9 +216,7 @@ const ViajanteCadastro = () => {
                   className="mt-2"
                   required
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive mt-1">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
               </div>
 
               <div>
@@ -221,9 +246,7 @@ const ViajanteCadastro = () => {
                           ) : (
                             <XCircle className="h-4 w-4 text-muted-foreground" />
                           )}
-                          <span className={isMet ? "text-green-600" : "text-muted-foreground"}>
-                            {req.text}
-                          </span>
+                          <span className={isMet ? "text-green-600" : "text-muted-foreground"}>{req.text}</span>
                         </div>
                       );
                     })}
@@ -247,15 +270,11 @@ const ViajanteCadastro = () => {
                   className="mt-2"
                   required
                 />
-                {errors.confirmarSenha && (
-                  <p className="text-sm text-destructive mt-1">{errors.confirmarSenha}</p>
-                )}
+                {errors.confirmarSenha && <p className="text-sm text-destructive mt-1">{errors.confirmarSenha}</p>}
               </div>
 
               <div className="pt-4 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Agora, complete seu perfil:
-                </p>
+                <p className="text-sm text-muted-foreground mb-4">Agora, complete seu perfil:</p>
               </div>
 
               <div>
@@ -274,9 +293,7 @@ const ViajanteCadastro = () => {
                   className="mt-2"
                   required
                 />
-                {errors.nomeCompleto && (
-                  <p className="text-sm text-destructive mt-1">{errors.nomeCompleto}</p>
-                )}
+                {errors.nomeCompleto && <p className="text-sm text-destructive mt-1">{errors.nomeCompleto}</p>}
               </div>
 
               <div>
@@ -296,12 +313,8 @@ const ViajanteCadastro = () => {
                   className="mt-2"
                   required
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Formato automático: (XX) XXXXX-XXXX
-                </p>
-                {errors.whatsapp && (
-                  <p className="text-sm text-destructive mt-1">{errors.whatsapp}</p>
-                )}
+                <p className="text-xs text-muted-foreground mt-1">Formato automático: (XX) XXXXX-XXXX</p>
+                {errors.whatsapp && <p className="text-sm text-destructive mt-1">{errors.whatsapp}</p>}
               </div>
 
               <div>
@@ -320,9 +333,7 @@ const ViajanteCadastro = () => {
                   className="mt-2"
                   required
                 />
-                {errors.linkedinUrl && (
-                  <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>
-                )}
+                {errors.linkedinUrl && <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>}
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
