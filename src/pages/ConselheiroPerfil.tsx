@@ -229,19 +229,9 @@ const ConselheiroPerfil = () => {
   };
 
   const handlePrev = () => {
-    if (step > 1) {
+    if (step > 0) {
       setStep(step - 1);
     }
-  };
-
-  const handleCheckboxChange = (field: keyof ConselheiroRespostas, value: string, checked: boolean) => {
-    setRespostas((prev) => {
-      const currentArray = prev[field] as string[];
-      return {
-        ...prev,
-        [field]: checked ? [...currentArray, value] : currentArray.filter((item) => item !== value),
-      };
-    });
   };
 
   const isStepValid = () => {
@@ -259,7 +249,9 @@ const ConselheiroPerfil = () => {
         // http://www.linkedin/in/perfil
         // https://www.linkedin/in/perfil
         // linkedin/in/perfil
-        const linkedinValid = /(?:https?:\/\/)?(?:www\.)?linkedin(?:\.com)?\/in\//i.test(respostas.linkedinUrl);
+        // Normalize antes de validar para cobrir todas as variações
+        const normalizedLinkedinForValidation = normalizeLinkedIn(respostas.linkedinUrl);
+        const linkedinValid = /linkedin\.com\/in\//i.test(normalizedLinkedinForValidation);
         return (
           respostas.miniBio.trim().length >= 50 &&
           respostas.areas.length > 0 &&
