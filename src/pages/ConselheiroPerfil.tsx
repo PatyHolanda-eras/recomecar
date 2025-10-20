@@ -132,7 +132,11 @@ const ConselheiroPerfil = () => {
     } else {
       // Validate final step
       try {
-        conselheiroPerfilSchema.parse(respostas);
+        // normalize linkedin before schema validation
+        const normalizedLinkedin = normalizeLinkedIn(respostas.linkedinUrl);
+        const respostasToValidate = { ...respostas, linkedinUrl: normalizedLinkedin };
+
+        conselheiroPerfilSchema.parse(respostasToValidate);
       } catch (error) {
         if (error instanceof z.ZodError) {
           const fieldErrors: Record<string, string> = {};
@@ -172,6 +176,9 @@ const ConselheiroPerfil = () => {
           return;
         }
 
+        // normalize linkedin before saving
+        const linkedinToSave = normalizeLinkedIn(respostas.linkedinUrl);
+
         // Save to Supabase using auth.uid() with upsert to handle both new and existing records
         const { error } = await supabase.from("conselheiros").upsert(
           [
@@ -180,7 +187,7 @@ const ConselheiroPerfil = () => {
               nome_completo: nomeCompleto || user.user_metadata?.nomeCompleto || user.email?.split("@")[0] || "",
               email: email || user.email || "",
               whatsapp: whatsapp,
-              linkedin_url: respostas.linkedinUrl,
+              linkedin_url: linkedinToSave,
               anos_experiencia: null,
               areas_atuacao: respostas.areas,
               arquetipo: null,
@@ -247,11 +254,17 @@ const ConselheiroPerfil = () => {
           whatsapp.trim().length > 0
         );
       case 1:
+        // accept variants like:
+        // www.linkedin/in/perfil
+        // http://www.linkedin/in/perfil
+        // https://www.linkedin/in/perfil
+        // linkedin/in/perfil
+        const linkedinValid = /(?:https?:\/\/)?(?:www\.)?linkedin(?:\.com)?\/in\//i.test(respostas.linkedinUrl);
         return (
           respostas.miniBio.trim().length >= 50 &&
           respostas.areas.length > 0 &&
           respostas.linkedinUrl.trim().length > 0 &&
-          /linkedin\.com/.test(respostas.linkedinUrl)
+          linkedinValid
         );
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
@@ -264,6 +277,29 @@ const ConselheiroPerfil = () => {
       default:
         return false;
     }
+  };
+
+  // normalize LinkedIn input before validating/saving
+  const normalizeLinkedIn = (input: string) => {
+    let u = (input || "").trim();
+    if (!u) return u;
+    // remove protocol and leading www.
+    u = u.replace(/^https?:\/\//i, "");
+    u = u.replace(/^www\./i, "");
+    // If starts with "linkedin" or "linkedin.com", treat remainder as path
+    if (/^linkedin(\.com)?(\/|$)/i.test(u)) {
+      // remove "linkedin" or "linkedin.com" prefix
+      u = u.replace(/^linkedin(\.com)?\/?/i, "");
+      // ensure no duplicate slashes
+      u = u.replace(/^\/+/, "");
+      return `https://www.linkedin.com/${u}`;
+    }
+    // If contains linkedin.com somewhere, just ensure https://www. prefix
+    if (/linkedin\.com/i.test(u)) {
+      return `https://www.${u}`;
+    }
+    // otherwise return original (no change)
+    return input;
   };
 
   if (loading) {
