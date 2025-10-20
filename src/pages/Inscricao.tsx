@@ -16,7 +16,7 @@ const Inscricao = () => {
     if (role === 'viajante') {
       navigate('/viajante-cadastro');
     } else {
-      navigate('/conselheiro/perfil');
+      navigate('/conselheiro-perfil');
     }
   };
 

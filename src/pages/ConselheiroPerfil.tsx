@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,14 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { WizardStep } from "@/components/diagnostico/WizardStep";
-import { ProgressBar } from "@/components/diagnostico/ProgressBar";
 import { ConselheiroRespostas } from "@/types/diagnostico";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { conselheiroPerfilSchema } from "@/lib/validationSchemas";
-import { setWithTimestamp, clearFormData } from "@/lib/storageCleanup";
+import { clearFormData } from "@/lib/storageCleanup";
 import { z } from "zod";
 import { formatPhoneNumber } from "@/lib/phoneFormatter";
 import { validatePassword, getPasswordRequirements } from "@/lib/passwordValidation";
@@ -24,8 +21,7 @@ import { validatePassword, getPasswordRequirements } from "@/lib/passwordValidat
 const ConselheiroPerfil = () => {
   const navigate = useNavigate();
   const { user, loading, signUp } = useAuth();
-  const [step, setStep] = useState(0);
-  const totalSteps = 4;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [nomeCompleto, setNomeCompleto] = useState("");
   const [email, setEmail] = useState("");
@@ -47,7 +43,7 @@ const ConselheiroPerfil = () => {
   useEffect(() => {
     // Check if user already has a profile (only if authenticated)
     const checkExistingProfile = async () => {
-      if (user) {
+      if (user && !isSubmitting) {
         const { data } = await supabase.from("conselheiros").select("*").eq("id", user.id).single();
 
         if (data) {
@@ -55,220 +51,187 @@ const ConselheiroPerfil = () => {
             title: "Você já possui cadastro",
             description: "Redirecionando para resultados...",
           });
-          navigate("/conselheiro-resultados");
+          navigate("/conselheiro-resultados", { replace: true });
         }
       }
     };
 
     checkExistingProfile();
-  }, [user, navigate]);
+  }, [user, navigate, isSubmitting]);
 
-  const handleNext = async () => {
-    // Step 0: Create account
-    if (step === 0) {
-      if (!nomeCompleto || !email || !senha || !whatsapp) {
-        toast({
-          title: "Campos obrigatórios",
-          description: "Preencha todos os campos para continuar.",
-          variant: "destructive",
-        });
-        return;
+  const handleCheckboxChange = (field: keyof ConselheiroRespostas, value: string, checked: boolean) => {
+    setRespostas((prev) => {
+      const currentArray = prev[field] as string[];
+      if (checked) {
+        return { ...prev, [field]: [...currentArray, value] };
+      } else {
+        return { ...prev, [field]: currentArray.filter((item) => item !== value) };
       }
+    });
+  };
 
-      // Validate email
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        toast({
-          title: "Email inválido",
-          description: "Por favor, insira um email válido.",
-          variant: "destructive",
-        });
-        return;
-      }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-      // Validate password
-      const passwordValidation = validatePassword(senha);
-      if (!passwordValidation.valid) {
-        toast({
-          title: "Senha não atende os requisitos",
-          description: passwordValidation.errors[0],
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Create account
-      try {
-        const { error } = await signUp(email, senha, { nomeCompleto });
-
-        if (error) {
-          toast({
-            title: "Erro ao criar conta",
-            description: error.message,
-            variant: "destructive",
-          });
-          return;
-        }
-
-        toast({
-          title: "Conta criada!",
-          description: "Continue preenchendo seu perfil.",
-        });
-
-        setStep(1);
-        setErrors({});
-      } catch (error) {
-        toast({
-          title: "Erro ao criar conta",
-          description: "Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-      }
+    // Validate all fields
+    if (!nomeCompleto || !email || !senha || !whatsapp) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos para continuar.",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
       return;
     }
 
-    if (step < totalSteps - 1) {
-      setStep(step + 1);
-      setErrors({});
-    } else {
-      // Validate final step
-      try {
-        // normalize linkedin before schema validation
-        const normalizedLinkedin = normalizeLinkedIn(respostas.linkedinUrl);
-        const respostasToValidate = { ...respostas, linkedinUrl: normalizedLinkedin };
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor, insira um email válido.",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
-        conselheiroPerfilSchema.parse(respostasToValidate);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          const fieldErrors: Record<string, string> = {};
-          error.errors.forEach((err) => {
-            if (err.path[0]) {
-              fieldErrors[err.path[0] as string] = err.message;
-            }
-          });
-          setErrors(fieldErrors);
-          toast({
-            title: "Validação falhou",
-            description: "Por favor, preencha todos os campos obrigatórios.",
-            variant: "destructive",
-          });
-          return;
-        }
-      }
+    // Validate password
+    const passwordValidation = validatePassword(senha);
+    if (!passwordValidation.valid) {
+      toast({
+        title: "Senha não atende os requisitos",
+        description: passwordValidation.errors[0],
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
-      if (!user) {
+    // Validate schema
+    try {
+      const normalizedLinkedin = normalizeLinkedIn(respostas.linkedinUrl);
+      const respostasToValidate = { ...respostas, linkedinUrl: normalizedLinkedin };
+      conselheiroPerfilSchema.parse(respostasToValidate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
         toast({
-          title: "Erro",
-          description: "Você precisa estar autenticado.",
+          title: "Validação falhou",
+          description: "Por favor, preencha todos os campos obrigatórios.",
           variant: "destructive",
         });
-        navigate("/auth");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    try {
+      // Create account
+      const { error: signUpError } = await signUp(email, senha, { nomeCompleto });
+
+      if (signUpError) {
+        toast({
+          title: "Erro ao criar conta",
+          description: signUpError.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
         return;
       }
 
-      try {
-        // Validate whatsapp before saving
-        if (!whatsapp || whatsapp.trim() === "") {
-          toast({
-            title: "WhatsApp obrigatório",
-            description: "Por favor, preencha seu número de WhatsApp.",
-            variant: "destructive",
-          });
-          return;
-        }
+      // Wait a bit for auth to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // normalize linkedin before saving
-        const linkedinToSave = normalizeLinkedIn(respostas.linkedinUrl);
+      // Get fresh user
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-        // Save to Supabase using auth.uid() with upsert to handle both new and existing records
-        const { error } = await supabase.from("conselheiros").upsert(
-          [
-            {
-              id: user.id,
-              nome_completo: nomeCompleto || user.user_metadata?.nomeCompleto || user.email?.split("@")[0] || "",
-              email: email || user.email || "",
-              whatsapp: whatsapp,
-              linkedin_url: linkedinToSave,
-              anos_experiencia: null,
-              areas_atuacao: respostas.areas,
-              arquetipo: null,
-              bio: respostas.miniBio,
-            },
-          ],
-          {
-            onConflict: "id",
-          },
-        );
-
-        if (error) {
-          console.error("Profile save failed:", { timestamp: Date.now() });
-          toast({
-            title: "Erro ao salvar perfil",
-            description: "Tente novamente mais tarde.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        setWithTimestamp("conselheiro_respostas", JSON.stringify(respostas));
-        clearFormData();
-
+      if (!currentUser) {
         toast({
-          title: "Perfil salvo!",
-          description: "Nossa equipe entrará em contato com você em breve para maiores informações.",
+          title: "Erro",
+          description: "Falha ao autenticar. Tente fazer login.",
+          variant: "destructive",
         });
+        setIsSubmitting(false);
+        return;
+      }
 
-        navigate("/conselheiro-resultados");
-      } catch (error) {
+      // normalize linkedin before saving
+      const linkedinToSave = normalizeLinkedIn(respostas.linkedinUrl);
+
+      // Save to Supabase
+      const { error } = await supabase.from("conselheiros").insert([
+        {
+          id: currentUser.id,
+          nome_completo: nomeCompleto,
+          email: email,
+          whatsapp: whatsapp,
+          linkedin_url: linkedinToSave,
+          anos_experiencia: null,
+          areas_atuacao: respostas.areas,
+          arquetipo: null,
+          bio: respostas.miniBio,
+        },
+      ]);
+
+      if (error) {
+        console.error("Profile save failed:", error);
         toast({
           title: "Erro ao salvar perfil",
           description: "Tente novamente mais tarde.",
           variant: "destructive",
         });
+        setIsSubmitting(false);
+        return;
       }
+
+      clearFormData();
+
+      toast({
+        title: "Cadastro realizado!",
+        description: "Redirecionando...",
+      });
+
+      // Use replace to prevent back button from returning to form
+      setTimeout(() => {
+        navigate("/conselheiro-resultados", { replace: true });
+      }, 1000);
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Erro ao realizar cadastro",
+        description: "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
     }
   };
 
-  const handlePrev = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
-  };
-
-  const isStepValid = () => {
-    switch (step) {
-      case 0:
-        return (
-          nomeCompleto.trim().length > 0 &&
-          email.trim().length > 0 &&
-          validatePassword(senha).valid &&
-          whatsapp.trim().length > 0
-        );
-      case 1:
-        // accept variants like:
-        // www.linkedin/in/perfil
-        // http://www.linkedin/in/perfil
-        // https://www.linkedin/in/perfil
-        // linkedin/in/perfil
-        // Normalize antes de validar para cobrir todas as variações
-        const normalizedLinkedinForValidation = normalizeLinkedIn(respostas.linkedinUrl);
-        const linkedinValid = /linkedin\.com\/in\//i.test(normalizedLinkedinForValidation);
-        return (
-          respostas.miniBio.trim().length >= 50 &&
-          respostas.areas.length > 0 &&
-          respostas.linkedinUrl.trim().length > 0 &&
-          linkedinValid
-        );
-      case 2:
-        return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
-      case 3:
-        return (
-          respostas.temasPreferidos.length > 0 &&
-          respostas.estiloAconselhamento !== "" &&
-          respostas.formatoPreferido !== ""
-        );
-      default:
-        return false;
-    }
+  const isFormValid = () => {
+    const normalizedLinkedinForValidation = normalizeLinkedIn(respostas.linkedinUrl);
+    const linkedinValid = /linkedin\.com\/in\//i.test(normalizedLinkedinForValidation);
+    
+    return (
+      nomeCompleto.trim().length > 0 &&
+      email.trim().length > 0 &&
+      validatePassword(senha).valid &&
+      whatsapp.trim().length > 0 &&
+      respostas.miniBio.trim().length >= 50 &&
+      respostas.areas.length > 0 &&
+      respostas.linkedinUrl.trim().length > 0 &&
+      linkedinValid &&
+      respostas.nivelExperiencia !== "" &&
+      respostas.publicosApoio.length > 0 &&
+      respostas.temasPreferidos.length > 0 &&
+      respostas.estiloAconselhamento !== "" &&
+      respostas.formatoPreferido !== ""
+    );
   };
 
   // normalize LinkedIn input before validating/saving
@@ -308,7 +271,7 @@ const ConselheiroPerfil = () => {
 
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground leading-[1.1] tracking-[-0.01em]">
-            Complete seu Perfil de{" "}
+            Cadastro de{" "}
             <span className="bg-gradient-to-r from-primary-start to-primary-end bg-clip-text text-transparent">
               Conselheiro
             </span>
@@ -318,325 +281,338 @@ const ConselheiroPerfil = () => {
           </p>
         </div>
 
-        <ProgressBar currentStep={step} totalSteps={totalSteps} />
-
-        <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0 mt-8">
-          <CardContent className="p-8">
-            {step === 0 && (
-              <WizardStep onNext={handleNext} showPrev={false} nextDisabled={!isStepValid()}>
-                <div className="space-y-6">
+        <form onSubmit={handleSubmit}>
+          <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0">
+            <CardContent className="p-8 space-y-12">
+              {/* Seção 1: Dados da Conta */}
+              <div className="space-y-6">
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
+                  <CardDescription>Preencha seus dados para começar</CardDescription>
+                </div>
                   <div>
                     <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
                     <CardDescription>Preencha seus dados para começar</CardDescription>
                   </div>
 
-                  <div>
-                    <Label htmlFor="nomeCompleto" className="text-base font-semibold">
-                      Nome Completo *
-                    </Label>
-                    <Input
-                      id="nomeCompleto"
-                      type="text"
-                      placeholder="Digite seu nome completo"
-                      value={nomeCompleto}
-                      onChange={(e) => setNomeCompleto(e.target.value)}
-                      className="mt-2"
-                      required
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="nomeCompleto" className="text-base font-semibold">
+                    Nome Completo *
+                  </Label>
+                  <Input
+                    id="nomeCompleto"
+                    type="text"
+                    placeholder="Digite seu nome completo"
+                    value={nomeCompleto}
+                    onChange={(e) => setNomeCompleto(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                </div>
 
-                  <div>
-                    <Label htmlFor="email" className="text-base font-semibold">
-                      Email *
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="mt-2"
-                      required
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="email" className="text-base font-semibold">
+                    Email *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                </div>
 
-                  <div>
-                    <Label htmlFor="senha" className="text-base font-semibold">
-                      Senha *
-                    </Label>
-                    <Input
-                      id="senha"
-                      type="password"
-                      placeholder="Mínimo 8 caracteres"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
-                      className="mt-2"
-                      required
-                    />
-                    {senha && (
-                      <div className="mt-3 space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Requisitos de senha:</p>
-                        {getPasswordRequirements().map((req) => {
-                          const isValid = req.regex.test(senha);
-                          return (
-                            <div key={req.id} className="flex items-center gap-2 text-sm">
-                              {isValid ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                              ) : (
-                                <XCircle className="h-4 w-4 text-muted-foreground" />
-                              )}
-                              <span className={isValid ? "text-green-600" : "text-muted-foreground"}>{req.text}</span>
-                            </div>
-                          );
-                        })}
+                <div>
+                  <Label htmlFor="senha" className="text-base font-semibold">
+                    Senha *
+                  </Label>
+                  <Input
+                    id="senha"
+                    type="password"
+                    placeholder="Mínimo 8 caracteres"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    className="mt-2"
+                    required
+                  />
+                  {senha && (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Requisitos de senha:</p>
+                      {getPasswordRequirements().map((req) => {
+                        const isValid = req.regex.test(senha);
+                        return (
+                          <div key={req.id} className="flex items-center gap-2 text-sm">
+                            {isValid ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <span className={isValid ? "text-green-600" : "text-muted-foreground"}>{req.text}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="whatsapp" className="text-base font-semibold">
+                    WhatsApp *
+                  </Label>
+                  <Input
+                    id="whatsapp"
+                    type="tel"
+                    placeholder="Digite apenas números"
+                    value={whatsapp}
+                    onChange={(e) => {
+                      const formatted = formatPhoneNumber(e.target.value);
+                      setWhatsapp(formatted);
+                    }}
+                    className="mt-2"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Formato automático: (XX) XXXXX-XXXX</p>
+                </div>
+              </div>
+
+              {/* Seção 2: Perfil Profissional */}
+              <div className="space-y-8 border-t pt-8">
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">Perfil Profissional</CardTitle>
+                  <CardDescription>Conte-nos sobre sua experiência</CardDescription>
+                </div>
+
+                <div>
+                  <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
+                    Mini-bio (50-1000 caracteres) *
+                  </Label>
+                  <Textarea
+                    id="miniBio"
+                    placeholder="Descreva sua experiência e como você pode ajudar. Ex: 'Estrategista de produto com 10+ anos...'"
+                    value={respostas.miniBio}
+                    onChange={(e) => {
+                      setRespostas({ ...respostas, miniBio: e.target.value });
+                      setErrors({ ...errors, miniBio: "" });
+                    }}
+                    className="min-h-[120px] text-base"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">{respostas.miniBio.length}/1000 caracteres</p>
+                  {errors.miniBio && <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="linkedinUrl" className="text-lg font-semibold text-foreground mb-3 block">
+                    URL do LinkedIn *
+                  </Label>
+                  <Input
+                    id="linkedinUrl"
+                    type="text"
+                    placeholder="linkedin.com/in/seu-perfil"
+                    value={respostas.linkedinUrl}
+                    onChange={(e) => {
+                      setRespostas({ ...respostas, linkedinUrl: e.target.value });
+                      setErrors({ ...errors, linkedinUrl: "" });
+                    }}
+                    className="text-base"
+                  />
+                  {errors.linkedinUrl && <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>}
+                </div>
+
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">
+                    Áreas Principais de Atuação *
+                  </Label>
+                  <p className="text-sm text-[#666666] mb-4">Selecione todas que se aplicam</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      "Produto (PM/PO)",
+                      "Desenvolvimento/Engenharia de Software",
+                      "Dados/Analytics/BI",
+                      "UX/UI/Design/Research",
+                      "Governança/Agile/Transformação",
+                      "Liderança/Gestão geral",
+                    ].map((area) => (
+                      <div
+                        key={area}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <Checkbox
+                          id={`area-${area}`}
+                          checked={respostas.areas.includes(area)}
+                          onCheckedChange={(checked) => handleCheckboxChange("areas", area, checked as boolean)}
+                        />
+                        <Label htmlFor={`area-${area}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {area}
+                        </Label>
                       </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="whatsapp" className="text-base font-semibold">
-                      WhatsApp *
-                    </Label>
-                    <Input
-                      id="whatsapp"
-                      type="tel"
-                      placeholder="Digite apenas números"
-                      value={whatsapp}
-                      onChange={(e) => {
-                        const formatted = formatPhoneNumber(e.target.value);
-                        setWhatsapp(formatted);
-                      }}
-                      className="mt-2"
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">Formato automático: (XX) XXXXX-XXXX</p>
+                    ))}
                   </div>
                 </div>
-              </WizardStep>
-            )}
+              </div>
 
-            {step === 1 && (
-              <WizardStep onNext={handleNext} onPrev={handlePrev} nextDisabled={!isStepValid()}>
-                <div className="space-y-8">
-                  <div>
-                    <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
-                      Mini-bio (50-1000 caracteres) *
-                    </Label>
-                    <Textarea
-                      id="miniBio"
-                      placeholder="Descreva sua experiência e como você pode ajudar. Ex: 'Estrategista de produto com 10+ anos...'"
-                      value={respostas.miniBio}
-                      onChange={(e) => {
-                        setRespostas({ ...respostas, miniBio: e.target.value });
-                        setErrors({ ...errors, miniBio: "" });
-                      }}
-                      className="min-h-[120px] text-base"
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">{respostas.miniBio.length}/1000 caracteres</p>
-                    {errors.miniBio && <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>}
-                  </div>
+              {/* Seção 3: Experiência e Público */}
+              <div className="space-y-8 border-t pt-8">
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">Experiência e Público</CardTitle>
+                  <CardDescription>Quem você pode ajudar</CardDescription>
+                </div>
 
-                  <div>
-                    <Label htmlFor="linkedinUrl" className="text-lg font-semibold text-foreground mb-3 block">
-                      URL do LinkedIn *
-                    </Label>
-                    <Input
-                      id="linkedinUrl"
-                      type="text"
-                      placeholder="linkedin.com/in/seu-perfil"
-                      value={respostas.linkedinUrl}
-                      onChange={(e) => {
-                        setRespostas({ ...respostas, linkedinUrl: e.target.value });
-                        setErrors({ ...errors, linkedinUrl: "" });
-                      }}
-                      className="text-base"
-                    />
-                    {errors.linkedinUrl && <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>}
-                  </div>
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">
+                    Seu Nível de Experiência Profissional *
+                  </Label>
+                  <RadioGroup
+                    value={respostas.nivelExperiencia}
+                    onValueChange={(value) => setRespostas({ ...respostas, nivelExperiencia: value })}
+                    className="space-y-3"
+                  >
+                    {["Pleno", "Sênior", "Gestão / liderança", "Diretoria", "Consultor"].map((nivel) => (
+                      <div
+                        key={nivel}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <RadioGroupItem value={nivel} id={`nivel-${nivel}`} />
+                        <Label htmlFor={`nivel-${nivel}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {nivel}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
 
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Áreas Principais de Atuação
-                    </Label>
-                    <p className="text-sm text-[#666666] mb-4">Selecione todas que se aplicam</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {[
-                        "Produto (PM/PO)",
-                        "Desenvolvimento/Engenharia de Software",
-                        "Dados/Analytics/BI",
-                        "UX/UI/Design/Research",
-                        "Governança/Agile/Transformação",
-                        "Liderança/Gestão geral",
-                      ].map((area) => (
-                        <div
-                          key={area}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <Checkbox
-                            id={`area-${area}`}
-                            checked={respostas.areas.includes(area)}
-                            onCheckedChange={(checked) => handleCheckboxChange("areas", area, checked as boolean)}
-                          />
-                          <Label htmlFor={`area-${area}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {area}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">Públicos que Você Apoia *</Label>
+                  <p className="text-sm text-[#666666] mb-4">Selecione todos que se aplicam</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      "Início de carreira",
+                      "Recolocação",
+                      "Crescimento na área",
+                      "Liderança",
+                      "Transição de carreira",
+                    ].map((publico) => (
+                      <div
+                        key={publico}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <Checkbox
+                          id={`publico-${publico}`}
+                          checked={respostas.publicosApoio.includes(publico)}
+                          onCheckedChange={(checked) =>
+                            handleCheckboxChange("publicosApoio", publico, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`publico-${publico}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {publico}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </WizardStep>
-            )}
+              </div>
 
-            {step === 2 && (
-              <WizardStep onNext={handleNext} onPrev={handlePrev} nextDisabled={!isStepValid()}>
-                <div className="space-y-8">
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Seu Nível de Experiência Profissional
-                    </Label>
-                    <RadioGroup
-                      value={respostas.nivelExperiencia}
-                      onValueChange={(value) => setRespostas({ ...respostas, nivelExperiencia: value })}
-                      className="space-y-3"
-                    >
-                      {["Pleno", "Sênior", "Gestão / liderança", "Diretoria", "Consultor"].map((nivel) => (
-                        <div
-                          key={nivel}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <RadioGroupItem value={nivel} id={`nivel-${nivel}`} />
-                          <Label htmlFor={`nivel-${nivel}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {nivel}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  </div>
+              {/* Seção 4: Preferências de Aconselhamento */}
+              <div className="space-y-8 border-t pt-8">
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">Preferências de Aconselhamento</CardTitle>
+                  <CardDescription>Como você prefere orientar</CardDescription>
+                </div>
 
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">Públicos que Você Apoia</Label>
-                    <p className="text-sm text-[#666666] mb-4">Selecione todos que se aplicam</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {[
-                        "Início de carreira",
-                        "Recolocação",
-                        "Crescimento na área",
-                        "Liderança",
-                        "Transição de carreira",
-                      ].map((publico) => (
-                        <div
-                          key={publico}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <Checkbox
-                            id={`publico-${publico}`}
-                            checked={respostas.publicosApoio.includes(publico)}
-                            onCheckedChange={(checked) =>
-                              handleCheckboxChange("publicosApoio", publico, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`publico-${publico}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {publico}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">
+                    Temas Preferidos para Aconselhar *
+                  </Label>
+                  <p className="text-sm text-[#666666] mb-4">Selecione todos que se aplicam</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      "Funções e escopo",
+                      "Trilhas de desenvolvimento",
+                      "Preparação para entrevistas",
+                      "Construção de portfólio",
+                      "Soft skills",
+                      "Liderança",
+                    ].map((tema) => (
+                      <div
+                        key={tema}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <Checkbox
+                          id={`tema-${tema}`}
+                          checked={respostas.temasPreferidos.includes(tema)}
+                          onCheckedChange={(checked) =>
+                            handleCheckboxChange("temasPreferidos", tema, checked as boolean)
+                          }
+                        />
+                        <Label htmlFor={`tema-${tema}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {tema}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </WizardStep>
-            )}
 
-            {step === 3 && (
-              <WizardStep
-                onNext={handleNext}
-                onPrev={handlePrev}
-                isLastStep
-                nextDisabled={!isStepValid()}
-                nextButtonText="Finalizar Cadastro"
-              >
-                <div className="space-y-8">
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Temas Preferidos para Aconselhar
-                    </Label>
-                    <p className="text-sm text-[#666666] mb-4">Selecione todos que se aplicam</p>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {[
-                        "Funções e escopo",
-                        "Trilhas de desenvolvimento",
-                        "Preparação para entrevistas",
-                        "Construção de portfólio",
-                        "Soft skills",
-                        "Liderança",
-                      ].map((tema) => (
-                        <div
-                          key={tema}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <Checkbox
-                            id={`tema-${tema}`}
-                            checked={respostas.temasPreferidos.includes(tema)}
-                            onCheckedChange={(checked) =>
-                              handleCheckboxChange("temasPreferidos", tema, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={`tema-${tema}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {tema}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Seu Estilo de Aconselhamento
-                    </Label>
-                    <RadioGroup
-                      value={respostas.estiloAconselhamento}
-                      onValueChange={(value) => setRespostas({ ...respostas, estiloAconselhamento: value })}
-                      className="space-y-3"
-                    >
-                      {["Prático/direto", "Acolhedor/escuta ativa", "Balanceado"].map((estilo) => (
-                        <div
-                          key={estilo}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <RadioGroupItem value={estilo} id={`estilo-${estilo}`} />
-                          <Label htmlFor={`estilo-${estilo}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {estilo}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  </div>
-
-                  <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">Formato Preferido</Label>
-                    <RadioGroup
-                      value={respostas.formatoPreferido}
-                      onValueChange={(value) => setRespostas({ ...respostas, formatoPreferido: value })}
-                      className="space-y-3"
-                    >
-                      {["Conversas 1:1", "Grupo pequeno", "Comunidade/fórum", "Sem preferência"].map((formato) => (
-                        <div
-                          key={formato}
-                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
-                        >
-                          <RadioGroupItem value={formato} id={`formato-${formato}`} />
-                          <Label htmlFor={`formato-${formato}`} className="text-sm font-normal cursor-pointer flex-1">
-                            {formato}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  </div>
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">
+                    Seu Estilo de Aconselhamento *
+                  </Label>
+                  <RadioGroup
+                    value={respostas.estiloAconselhamento}
+                    onValueChange={(value) => setRespostas({ ...respostas, estiloAconselhamento: value })}
+                    className="space-y-3"
+                  >
+                    {["Prático/direto", "Acolhedor/escuta ativa", "Balanceado"].map((estilo) => (
+                      <div
+                        key={estilo}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <RadioGroupItem value={estilo} id={`estilo-${estilo}`} />
+                        <Label htmlFor={`estilo-${estilo}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {estilo}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
                 </div>
-              </WizardStep>
-            )}
-          </CardContent>
-        </Card>
+
+                <div>
+                  <Label className="text-lg font-semibold text-foreground mb-4 block">Formato Preferido *</Label>
+                  <RadioGroup
+                    value={respostas.formatoPreferido}
+                    onValueChange={(value) => setRespostas({ ...respostas, formatoPreferido: value })}
+                    className="space-y-3"
+                  >
+                    {["Conversas 1:1", "Grupo pequeno", "Comunidade/fórum", "Sem preferência"].map((formato) => (
+                      <div
+                        key={formato}
+                        className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                      >
+                        <RadioGroupItem value={formato} id={`formato-${formato}`} />
+                        <Label htmlFor={`formato-${formato}`} className="text-sm font-normal cursor-pointer flex-1">
+                          {formato}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+              </div>
+
+              {/* Botão de Envio */}
+              <div className="flex justify-end pt-6 border-t">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  disabled={!isFormValid() || isSubmitting}
+                  className="min-w-[200px]"
+                >
+                  {isSubmitting ? "Finalizando..." : "Finalizar Cadastro"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </form>
       </div>
     </div>
   );
