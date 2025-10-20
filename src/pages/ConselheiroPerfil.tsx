@@ -48,12 +48,8 @@ const ConselheiroPerfil = () => {
     // Check if user already has a profile (only if authenticated)
     const checkExistingProfile = async () => {
       if (user) {
-        const { data } = await supabase
-          .from('conselheiros')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
+        const { data } = await supabase.from("conselheiros").select("*").eq("id", user.id).single();
+
         if (data) {
           toast({
             title: "Você já possui cadastro",
@@ -103,7 +99,7 @@ const ConselheiroPerfil = () => {
       // Create account
       try {
         const { error } = await signUp(email, senha, { nomeCompleto });
-        
+
         if (error) {
           toast({
             title: "Erro ao criar conta",
@@ -117,7 +113,7 @@ const ConselheiroPerfil = () => {
           title: "Conta criada!",
           description: "Continue preenchendo seu perfil.",
         });
-        
+
         setStep(1);
         setErrors({});
       } catch (error) {
@@ -167,7 +163,7 @@ const ConselheiroPerfil = () => {
 
       try {
         // Validate whatsapp before saving
-        if (!whatsapp || whatsapp.trim() === '') {
+        if (!whatsapp || whatsapp.trim() === "") {
           toast({
             title: "WhatsApp obrigatório",
             description: "Por favor, preencha seu número de WhatsApp.",
@@ -177,24 +173,27 @@ const ConselheiroPerfil = () => {
         }
 
         // Save to Supabase using auth.uid() with upsert to handle both new and existing records
-        const { error } = await supabase
-          .from('conselheiros')
-          .upsert([{
-            id: user.id,
-            nome_completo: nomeCompleto || user.user_metadata?.nomeCompleto || user.email?.split('@')[0] || '',
-            email: email || user.email || '',
-            whatsapp: whatsapp,
-            linkedin_url: respostas.linkedinUrl,
-            anos_experiencia: null,
-            areas_atuacao: respostas.areas,
-            arquetipo: null,
-            bio: respostas.miniBio
-          }], {
-            onConflict: 'id'
-          });
+        const { error } = await supabase.from("conselheiros").upsert(
+          [
+            {
+              id: user.id,
+              nome_completo: nomeCompleto || user.user_metadata?.nomeCompleto || user.email?.split("@")[0] || "",
+              email: email || user.email || "",
+              whatsapp: whatsapp,
+              linkedin_url: respostas.linkedinUrl,
+              anos_experiencia: null,
+              areas_atuacao: respostas.areas,
+              arquetipo: null,
+              bio: respostas.miniBio,
+            },
+          ],
+          {
+            onConflict: "id",
+          },
+        );
 
         if (error) {
-          console.error('Profile save failed:', { timestamp: Date.now() });
+          console.error("Profile save failed:", { timestamp: Date.now() });
           toast({
             title: "Erro ao salvar perfil",
             description: "Tente novamente mais tarde.",
@@ -205,12 +204,12 @@ const ConselheiroPerfil = () => {
 
         setWithTimestamp("conselheiro_respostas", JSON.stringify(respostas));
         clearFormData();
-        
+
         toast({
           title: "Perfil salvo!",
           description: "Nossa equipe entrará em contato com você em breve para maiores informações.",
         });
-        
+
         navigate("/conselheiro-resultados");
       } catch (error) {
         toast({
@@ -233,9 +232,7 @@ const ConselheiroPerfil = () => {
       const currentArray = prev[field] as string[];
       return {
         ...prev,
-        [field]: checked
-          ? [...currentArray, value]
-          : currentArray.filter((item) => item !== value),
+        [field]: checked ? [...currentArray, value] : currentArray.filter((item) => item !== value),
       };
     });
   };
@@ -243,19 +240,27 @@ const ConselheiroPerfil = () => {
   const isStepValid = () => {
     switch (step) {
       case 0:
-        return nomeCompleto.trim().length > 0 && 
-               email.trim().length > 0 && 
-               validatePassword(senha).valid &&
-               whatsapp.trim().length > 0;
+        return (
+          nomeCompleto.trim().length > 0 &&
+          email.trim().length > 0 &&
+          validatePassword(senha).valid &&
+          whatsapp.trim().length > 0
+        );
       case 1:
-        return respostas.miniBio.trim().length >= 50 && 
-               respostas.areas.length > 0 && 
-               respostas.linkedinUrl.trim().length > 0 && 
-               /linkedin\.com/.test(respostas.linkedinUrl);
+        return (
+          respostas.miniBio.trim().length >= 50 &&
+          respostas.areas.length > 0 &&
+          respostas.linkedinUrl.trim().length > 0 &&
+          /linkedin\.com/.test(respostas.linkedinUrl)
+        );
       case 2:
         return respostas.nivelExperiencia !== "" && respostas.publicosApoio.length > 0;
       case 3:
-        return respostas.temasPreferidos.length > 0 && respostas.estiloAconselhamento !== "" && respostas.formatoPreferido !== "";
+        return (
+          respostas.temasPreferidos.length > 0 &&
+          respostas.estiloAconselhamento !== "" &&
+          respostas.formatoPreferido !== ""
+        );
       default:
         return false;
     }
@@ -268,11 +273,7 @@ const ConselheiroPerfil = () => {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Voltar
         </Button>
@@ -294,11 +295,7 @@ const ConselheiroPerfil = () => {
         <Card className="shadow-[0_2px_8px_rgba(0,0,0,0.05)] border-0 mt-8">
           <CardContent className="p-8">
             {step === 0 && (
-              <WizardStep
-                onNext={handleNext}
-                showPrev={false}
-                nextDisabled={!isStepValid()}
-              >
+              <WizardStep onNext={handleNext} showPrev={false} nextDisabled={!isStepValid()}>
                 <div className="space-y-6">
                   <div>
                     <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
@@ -350,9 +347,7 @@ const ConselheiroPerfil = () => {
                     />
                     {senha && (
                       <div className="mt-3 space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Requisitos de senha:
-                        </p>
+                        <p className="text-sm font-medium text-muted-foreground">Requisitos de senha:</p>
                         {getPasswordRequirements().map((req) => {
                           const isValid = req.regex.test(senha);
                           return (
@@ -362,9 +357,7 @@ const ConselheiroPerfil = () => {
                               ) : (
                                 <XCircle className="h-4 w-4 text-muted-foreground" />
                               )}
-                              <span className={isValid ? "text-green-600" : "text-muted-foreground"}>
-                                {req.text}
-                              </span>
+                              <span className={isValid ? "text-green-600" : "text-muted-foreground"}>{req.text}</span>
                             </div>
                           );
                         })}
@@ -388,20 +381,14 @@ const ConselheiroPerfil = () => {
                       className="mt-2"
                       required
                     />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Formato automático: (XX) XXXXX-XXXX
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Formato automático: (XX) XXXXX-XXXX</p>
                   </div>
                 </div>
               </WizardStep>
             )}
 
             {step === 1 && (
-              <WizardStep
-                onNext={handleNext}
-                onPrev={handlePrev}
-                nextDisabled={!isStepValid()}
-              >
+              <WizardStep onNext={handleNext} onPrev={handlePrev} nextDisabled={!isStepValid()}>
                 <div className="space-y-8">
                   <div>
                     <Label htmlFor="miniBio" className="text-lg font-semibold text-foreground mb-3 block">
@@ -417,12 +404,8 @@ const ConselheiroPerfil = () => {
                       }}
                       className="min-h-[120px] text-base"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {respostas.miniBio.length}/1000 caracteres
-                    </p>
-                    {errors.miniBio && (
-                      <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground mt-1">{respostas.miniBio.length}/1000 caracteres</p>
+                    {errors.miniBio && <p className="text-sm text-destructive mt-1">{errors.miniBio}</p>}
                   </div>
 
                   <div>
@@ -440,9 +423,7 @@ const ConselheiroPerfil = () => {
                       }}
                       className="text-base"
                     />
-                    {errors.linkedinUrl && (
-                      <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>
-                    )}
+                    {errors.linkedinUrl && <p className="text-sm text-destructive mt-1">{errors.linkedinUrl}</p>}
                   </div>
 
                   <div>
@@ -459,7 +440,10 @@ const ConselheiroPerfil = () => {
                         "Governança/Agile/Transformação",
                         "Liderança/Gestão geral",
                       ].map((area) => (
-                        <div key={area} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={area}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <Checkbox
                             id={`area-${area}`}
                             checked={respostas.areas.includes(area)}
@@ -477,11 +461,7 @@ const ConselheiroPerfil = () => {
             )}
 
             {step === 2 && (
-              <WizardStep
-                onNext={handleNext}
-                onPrev={handlePrev}
-                nextDisabled={!isStepValid()}
-              >
+              <WizardStep onNext={handleNext} onPrev={handlePrev} nextDisabled={!isStepValid()}>
                 <div className="space-y-8">
                   <div>
                     <Label className="text-lg font-semibold text-foreground mb-4 block">
@@ -493,7 +473,10 @@ const ConselheiroPerfil = () => {
                       className="space-y-3"
                     >
                       {["Pleno", "Sênior", "Gestão / liderança", "Diretoria", "Consultor"].map((nivel) => (
-                        <div key={nivel} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={nivel}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <RadioGroupItem value={nivel} id={`nivel-${nivel}`} />
                           <Label htmlFor={`nivel-${nivel}`} className="text-sm font-normal cursor-pointer flex-1">
                             {nivel}
@@ -504,9 +487,7 @@ const ConselheiroPerfil = () => {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Públicos que Você Apoia
-                    </Label>
+                    <Label className="text-lg font-semibold text-foreground mb-4 block">Públicos que Você Apoia</Label>
                     <p className="text-sm text-[#666666] mb-4">Selecione todos que se aplicam</p>
                     <div className="grid md:grid-cols-2 gap-4">
                       {[
@@ -516,11 +497,16 @@ const ConselheiroPerfil = () => {
                         "Liderança",
                         "Transição de carreira",
                       ].map((publico) => (
-                        <div key={publico} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={publico}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <Checkbox
                             id={`publico-${publico}`}
                             checked={respostas.publicosApoio.includes(publico)}
-                            onCheckedChange={(checked) => handleCheckboxChange("publicosApoio", publico, checked as boolean)}
+                            onCheckedChange={(checked) =>
+                              handleCheckboxChange("publicosApoio", publico, checked as boolean)
+                            }
                           />
                           <Label htmlFor={`publico-${publico}`} className="text-sm font-normal cursor-pointer flex-1">
                             {publico}
@@ -556,11 +542,16 @@ const ConselheiroPerfil = () => {
                         "Soft skills",
                         "Liderança",
                       ].map((tema) => (
-                        <div key={tema} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={tema}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <Checkbox
                             id={`tema-${tema}`}
                             checked={respostas.temasPreferidos.includes(tema)}
-                            onCheckedChange={(checked) => handleCheckboxChange("temasPreferidos", tema, checked as boolean)}
+                            onCheckedChange={(checked) =>
+                              handleCheckboxChange("temasPreferidos", tema, checked as boolean)
+                            }
                           />
                           <Label htmlFor={`tema-${tema}`} className="text-sm font-normal cursor-pointer flex-1">
                             {tema}
@@ -580,7 +571,10 @@ const ConselheiroPerfil = () => {
                       className="space-y-3"
                     >
                       {["Prático/direto", "Acolhedor/escuta ativa", "Balanceado"].map((estilo) => (
-                        <div key={estilo} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={estilo}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <RadioGroupItem value={estilo} id={`estilo-${estilo}`} />
                           <Label htmlFor={`estilo-${estilo}`} className="text-sm font-normal cursor-pointer flex-1">
                             {estilo}
@@ -591,16 +585,17 @@ const ConselheiroPerfil = () => {
                   </div>
 
                   <div>
-                    <Label className="text-lg font-semibold text-foreground mb-4 block">
-                      Formato Preferido
-                    </Label>
+                    <Label className="text-lg font-semibold text-foreground mb-4 block">Formato Preferido</Label>
                     <RadioGroup
                       value={respostas.formatoPreferido}
                       onValueChange={(value) => setRespostas({ ...respostas, formatoPreferido: value })}
                       className="space-y-3"
                     >
                       {["Conversas 1:1", "Grupo pequeno", "Comunidade/fórum", "Sem preferência"].map((formato) => (
-                        <div key={formato} className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors">
+                        <div
+                          key={formato}
+                          className="flex items-center space-x-3 p-4 rounded-lg border-2 border-border hover:border-accent transition-colors"
+                        >
                           <RadioGroupItem value={formato} id={`formato-${formato}`} />
                           <Label htmlFor={`formato-${formato}`} className="text-sm font-normal cursor-pointer flex-1">
                             {formato}
