@@ -310,8 +310,8 @@ const ViajanteCadastro = () => {
                 </Label>
                 <Input
                   id="linkedinUrl"
-                  type="url"
-                  placeholder="https://www.linkedin.com/in/seu-perfil"
+                  type="text"
+                  placeholder="linkedin.com/in/seu-perfil"
                   value={formData.linkedinUrl}
                   onChange={(e) => {
                     setFormData({ ...formData, linkedinUrl: e.target.value });

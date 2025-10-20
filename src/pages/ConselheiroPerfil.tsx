@@ -431,8 +431,8 @@ const ConselheiroPerfil = () => {
                     </Label>
                     <Input
                       id="linkedinUrl"
-                      type="url"
-                      placeholder="https://www.linkedin.com/in/seu-perfil"
+                      type="text"
+                      placeholder="linkedin.com/in/seu-perfil"
                       value={respostas.linkedinUrl}
                       onChange={(e) => {
                         setRespostas({ ...respostas, linkedinUrl: e.target.value });
