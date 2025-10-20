@@ -245,7 +245,7 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Mínimo 12 caracteres"
+                      placeholder="Mínimo 8 caracteres"
                       value={signupData.password}
                       onChange={(e) =>
                         setSignupData({ ...signupData, password: e.target.value })

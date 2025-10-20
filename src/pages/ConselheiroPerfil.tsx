@@ -342,7 +342,7 @@ const ConselheiroPerfil = () => {
                     <Input
                       id="senha"
                       type="password"
-                      placeholder="Mínimo 12 caracteres"
+                      placeholder="Mínimo 8 caracteres"
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
                       className="mt-2"
