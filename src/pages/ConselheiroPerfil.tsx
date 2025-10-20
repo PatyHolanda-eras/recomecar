@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +41,6 @@ const ConselheiroPerfil = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Check if user already has a profile (only if authenticated)
     const checkExistingProfile = async () => {
       if (user && !isSubmitting) {
         const { data } = await supabase.from("conselheiros").select("*").eq("id", user.id).single();
@@ -70,11 +69,26 @@ const ConselheiroPerfil = () => {
     });
   };
 
+  const normalizeLinkedIn = (input: string) => {
+    let u = (input || "").trim();
+    if (!u) return u;
+    u = u.replace(/^https?:\/\//i, "");
+    u = u.replace(/^www\./i, "");
+    if (/^linkedin(\.com)?(\/|$)/i.test(u)) {
+      u = u.replace(/^linkedin(\.com)?\/?/i, "");
+      u = u.replace(/^\/+/, "");
+      return `https://www.linkedin.com/${u}`;
+    }
+    if (/linkedin\.com/i.test(u)) {
+      return `https://www.${u}`;
+    }
+    return input;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validate all fields
     if (!nomeCompleto || !email || !senha || !whatsapp) {
       toast({
         title: "Campos obrigatórios",
@@ -85,7 +99,6 @@ const ConselheiroPerfil = () => {
       return;
     }
 
-    // Validate email
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
         title: "Email inválido",
@@ -96,7 +109,6 @@ const ConselheiroPerfil = () => {
       return;
     }
 
-    // Validate password
     const passwordValidation = validatePassword(senha);
     if (!passwordValidation.valid) {
       toast({
@@ -108,7 +120,6 @@ const ConselheiroPerfil = () => {
       return;
     }
 
-    // Validate schema
     try {
       const normalizedLinkedin = normalizeLinkedIn(respostas.linkedinUrl);
       const respostasToValidate = { ...respostas, linkedinUrl: normalizedLinkedin };
@@ -133,7 +144,6 @@ const ConselheiroPerfil = () => {
     }
 
     try {
-      // Create account
       const { error: signUpError } = await signUp(email, senha, { nomeCompleto });
 
       if (signUpError) {
@@ -146,10 +156,8 @@ const ConselheiroPerfil = () => {
         return;
       }
 
-      // Wait a bit for auth to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Get fresh user
       const { data: { user: currentUser } } = await supabase.auth.getUser();
 
       if (!currentUser) {
@@ -162,10 +170,8 @@ const ConselheiroPerfil = () => {
         return;
       }
 
-      // normalize linkedin before saving
       const linkedinToSave = normalizeLinkedIn(respostas.linkedinUrl);
 
-      // Save to Supabase
       const { error } = await supabase.from("conselheiros").insert([
         {
           id: currentUser.id,
@@ -198,7 +204,6 @@ const ConselheiroPerfil = () => {
         description: "Redirecionando...",
       });
 
-      // Use replace to prevent back button from returning to form
       setTimeout(() => {
         navigate("/conselheiro-resultados", { replace: true });
       }, 1000);
@@ -234,29 +239,6 @@ const ConselheiroPerfil = () => {
     );
   };
 
-  // normalize LinkedIn input before validating/saving
-  const normalizeLinkedIn = (input: string) => {
-    let u = (input || "").trim();
-    if (!u) return u;
-    // remove protocol and leading www.
-    u = u.replace(/^https?:\/\//i, "");
-    u = u.replace(/^www\./i, "");
-    // If starts with "linkedin" or "linkedin.com", treat remainder as path
-    if (/^linkedin(\.com)?(\/|$)/i.test(u)) {
-      // remove "linkedin" or "linkedin.com" prefix
-      u = u.replace(/^linkedin(\.com)?\/?/i, "");
-      // ensure no duplicate slashes
-      u = u.replace(/^\/+/, "");
-      return `https://www.linkedin.com/${u}`;
-    }
-    // If contains linkedin.com somewhere, just ensure https://www. prefix
-    if (/linkedin\.com/i.test(u)) {
-      return `https://www.${u}`;
-    }
-    // otherwise return original (no change)
-    return input;
-  };
-
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">Carregando...</div>;
   }
@@ -290,10 +272,6 @@ const ConselheiroPerfil = () => {
                   <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
                   <CardDescription>Preencha seus dados para começar</CardDescription>
                 </div>
-                  <div>
-                    <CardTitle className="text-2xl font-bold mb-2">Criar sua conta</CardTitle>
-                    <CardDescription>Preencha seus dados para começar</CardDescription>
-                  </div>
 
                 <div>
                   <Label htmlFor="nomeCompleto" className="text-base font-semibold">
