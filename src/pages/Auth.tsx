@@ -28,12 +28,14 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      console.log("Tentando fazer login com:", loginData.email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
 
       if (error) {
+        console.error("Erro no login:", error);
         if (error.message.includes("Invalid login credentials")) {
           toast({
             title: "Erro ao fazer login",
@@ -46,26 +48,33 @@ const Auth = () => {
         return;
       }
 
+      console.log("Login bem-sucedido, usuário:", data.user.id);
       toast({
         title: "Login realizado!",
         description: "Bem-vindo de volta.",
       });
 
       // Check if user is admin
-      const { data: roleData } = await supabase
+      console.log("Verificando role de admin...");
+      const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id)
         .eq("role", "admin")
         .maybeSingle();
 
+      console.log("Role data:", roleData, "Error:", roleError);
+
       // Redirect based on role
       if (roleData) {
+        console.log("Usuário é admin, redirecionando para /admin");
         navigate("/admin");
       } else {
+        console.log("Usuário não é admin, redirecionando para:", redirectTo);
         navigate(redirectTo);
       }
     } catch (error: any) {
+      console.error("Erro geral no login:", error);
       toast({
         title: "Erro ao fazer login",
         description: error.message || "Tente novamente mais tarde.",
