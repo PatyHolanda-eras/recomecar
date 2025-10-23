@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       conselheiros: {
         Row: {
+          admin_notes: string | null
           anos_experiencia: number | null
           areas_atuacao: string[] | null
           arquetipo: string | null
@@ -26,9 +27,11 @@ export type Database = {
           id: string
           linkedin_url: string | null
           nome_completo: string
+          status: string | null
           whatsapp: string | null
         }
         Insert: {
+          admin_notes?: string | null
           anos_experiencia?: number | null
           areas_atuacao?: string[] | null
           arquetipo?: string | null
@@ -39,9 +42,11 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           nome_completo: string
+          status?: string | null
           whatsapp?: string | null
         }
         Update: {
+          admin_notes?: string | null
           anos_experiencia?: number | null
           areas_atuacao?: string[] | null
           arquetipo?: string | null
@@ -52,6 +57,7 @@ export type Database = {
           id?: string
           linkedin_url?: string | null
           nome_completo?: string
+          status?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -191,30 +197,36 @@ export type Database = {
       }
       viajantes: {
         Row: {
+          admin_notes: string | null
           created_at: string
           deleted_at: string | null
           email: string
           id: string
           linkedin_url: string | null
           nome_completo: string
+          status: string | null
           whatsapp: string | null
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           deleted_at?: string | null
           email: string
           id?: string
           linkedin_url?: string | null
           nome_completo: string
+          status?: string | null
           whatsapp?: string | null
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           deleted_at?: string | null
           email?: string
           id?: string
           linkedin_url?: string | null
           nome_completo?: string
+          status?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -225,7 +237,7 @@ export type Database = {
     }
     Functions: {
       get_conselheiros_public: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           anos_experiencia: number
           areas_atuacao: string[]
@@ -236,6 +248,14 @@ export type Database = {
           nome_completo: string
         }[]
       }
+      get_dashboard_stats: {
+        Args: never
+        Returns: {
+          total_conselheiros: number
+          total_viajantes: number
+          total_visitors: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -243,14 +263,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      soft_delete_conselheiro_profile: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      soft_delete_viajante_profile: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      soft_delete_conselheiro_profile: { Args: never; Returns: undefined }
+      soft_delete_viajante_profile: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "viajante" | "conselheiro"
