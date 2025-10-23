@@ -51,7 +51,20 @@ const Auth = () => {
         description: "Bem-vindo de volta.",
       });
 
-      navigate(redirectTo);
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      // Redirect based on role
+      if (roleData) {
+        navigate("/admin");
+      } else {
+        navigate(redirectTo);
+      }
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",

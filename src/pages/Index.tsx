@@ -642,16 +642,10 @@ const Index = () => {
                 <div className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-primary" />
                   <a
-                    href="mailto:ola@recomecar.com"
+                    href="mailto:recomecar.mail@gmail.com"
                     className="text-background/70 hover:text-background transition-colors"
                   >
-                    ola@recomecar.com
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-5 h-5 text-primary" />
-                  <a href="tel:+5511999999999" className="text-background/70 hover:text-background transition-colors">
-                    +55 11 9999-9999
+                    recomecar.mail@gmail.com
                   </a>
                 </div>
               </div>

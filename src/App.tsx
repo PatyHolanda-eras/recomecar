@@ -14,6 +14,7 @@ import Diagnostico from "./pages/Diagnostico";
 import DiagnosticoResultados from "./pages/DiagnosticoResultados";
 import ConselheiroPerfil from "./pages/ConselheiroPerfil";
 import ConselheiroResultados from "./pages/ConselheiroResultados";
+import Admin from "./pages/Admin";
 import { cleanupOldData } from "@/lib/storageCleanup";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ function App() {
               <Route path="/diagnostico/resultados" element={<DiagnosticoResultados />} />
               <Route path="/conselheiro/perfil" element={<ConselheiroPerfil />} />
               <Route path="/conselheiro-resultados" element={<ConselheiroResultados />} />
+              <Route path="/admin" element={<Admin />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
