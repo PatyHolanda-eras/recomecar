@@ -220,7 +220,8 @@ const ConselheiroPerfil = () => {
 
   const isFormValid = () => {
     const normalizedLinkedinForValidation = normalizeLinkedIn(respostas.linkedinUrl);
-    const linkedinValid = /linkedin\.com\/in\//i.test(normalizedLinkedinForValidation);
+    // Aceita tanto linkedin.com/in/perfil quanto linkedin.com/perfil
+    const linkedinValid = /linkedin\.com\/(?:in\/)?[^\s\/]+/i.test(normalizedLinkedinForValidation);
     
     return (
       nomeCompleto.trim().length > 0 &&
