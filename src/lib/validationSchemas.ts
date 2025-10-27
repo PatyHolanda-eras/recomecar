@@ -65,7 +65,8 @@ const linkedinUrlSchema = z.string()
       try {
         const path = new URL(url).pathname;
         // Aceita /in/nome-perfil ou /nome-perfil
-        return /^\/(?:in\/)?[\w-]+\/?$/.test(path);
+        // Permite letras (incluindo acentuadas), números, hífens, underscores e outros caracteres especiais comuns em URLs
+        return /^\/(?:in\/)?[a-zA-Z0-9\-_\u00C0-\u024F\u1E00-\u1EFF]+\/?$/.test(path);
       } catch {
         return false;
       }
