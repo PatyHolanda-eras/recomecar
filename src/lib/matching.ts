@@ -7,41 +7,105 @@ export const calcularCompatibilidade = (
   let score = 0;
   let maxScore = 0;
 
-  // Compatibilidade de áreas (peso: 30%)
-  const areasMatch = respostas.areas.filter(area =>
-    conselheiro.areas.includes(area)
-  ).length;
-  score += (areasMatch / Math.max(respostas.areas.length, 1)) * 30;
-  maxScore += 30;
+  // Normalize arrays
+  const respostasAreas = Array.isArray(respostas.areas) ? respostas.areas : [];
+  const conselheiroAreas = Array.isArray(conselheiro.areas) ? conselheiro.areas : [];
+  const respostasDuvidas = Array.isArray(respostas.duvidas) ? respostas.duvidas : [];
+  const conselheiroTemas = Array.isArray(conselheiro.temas_preferidos) ? conselheiro.temas_preferidos : [];
 
-  // Compatibilidade de nível (peso: 20%)
-  const niveis = ["iniciante", "intermediario", "avancado"];
-  const nivelViajante = niveis.indexOf(respostas.nivel.toLowerCase());
-  const nivelConselheiro = niveis.indexOf(conselheiro.nivel_experiencia.toLowerCase());
-  
-  if (nivelViajante !== -1 && nivelConselheiro !== -1) {
-    const diferencaNivel = Math.abs(nivelViajante - nivelConselheiro);
-    score += Math.max(0, 20 - diferencaNivel * 7);
+  // Compatibilidade de áreas (peso: 35%)
+  if (respostasAreas.length > 0 && conselheiroAreas.length > 0) {
+    const areasMatch = respostasAreas.filter(area =>
+      conselheiroAreas.some(ca => 
+        ca.toLowerCase().trim() === area.toLowerCase().trim()
+      )
+    ).length;
+    
+    if (areasMatch > 0) {
+      score += (areasMatch / respostasAreas.length) * 35;
+    }
   }
-  maxScore += 20;
+  maxScore += 35;
+
+  // Compatibilidade de nível (peso: 15%)
+  const niveis = ["iniciante", "intermediario", "intermediário", "avancado", "avançado"];
+  const normalizeNivel = (nivel: string) => {
+    const n = nivel.toLowerCase().trim();
+    if (n.includes("inicia")) return "iniciante";
+    if (n.includes("interm")) return "intermediario";
+    if (n.includes("avan")) return "avancado";
+    return n;
+  };
+  
+  const nivelViajante = normalizeNivel(respostas.nivel || "");
+  const nivelConselheiro = normalizeNivel(conselheiro.nivel_experiencia || "");
+  
+  const nivelViajanteIdx = ["iniciante", "intermediario", "avancado"].indexOf(nivelViajante);
+  const nivelConselheiroIdx = ["iniciante", "intermediario", "avancado"].indexOf(nivelConselheiro);
+  
+  if (nivelViajanteIdx !== -1 && nivelConselheiroIdx !== -1) {
+    const diferencaNivel = Math.abs(nivelViajanteIdx - nivelConselheiroIdx);
+    // Perfect match = 15 pts, 1 level diff = 10 pts, 2 levels diff = 5 pts
+    score += Math.max(0, 15 - diferencaNivel * 5);
+  }
+  maxScore += 15;
 
   // Compatibilidade de estilo (peso: 25%)
-  if (respostas.estiloConselheiro.toLowerCase() === conselheiro.estilo.toLowerCase()) {
-    score += 25;
+  const normalizeEstilo = (estilo: string) => estilo.toLowerCase().trim();
+  
+  if (respostas.estiloConselheiro && conselheiro.estilo) {
+    if (normalizeEstilo(respostas.estiloConselheiro) === normalizeEstilo(conselheiro.estilo)) {
+      score += 25;
+    } else {
+      // Partial match for similar styles
+      const estiloViajante = normalizeEstilo(respostas.estiloConselheiro);
+      const estiloConselheiro = normalizeEstilo(conselheiro.estilo);
+      
+      if (estiloViajante.includes(estiloConselheiro) || estiloConselheiro.includes(estiloViajante)) {
+        score += 15;
+      }
+    }
   }
   maxScore += 25;
 
   // Compatibilidade de temas/dúvidas (peso: 25%)
-  const temasMatch = respostas.duvidas.filter(duvida =>
-    conselheiro.temas_preferidos.some(tema =>
-      duvida.toLowerCase().includes(tema.toLowerCase()) ||
-      tema.toLowerCase().includes(duvida.toLowerCase())
-    )
-  ).length;
-  score += (temasMatch / Math.max(respostas.duvidas.length, 1)) * 25;
+  if (respostasDuvidas.length > 0 && conselheiroTemas.length > 0) {
+    const temasMatch = respostasDuvidas.filter(duvida => {
+      const duvidaNorm = duvida.toLowerCase().trim();
+      return conselheiroTemas.some(tema => {
+        const temaNorm = tema.toLowerCase().trim();
+        return duvidaNorm.includes(temaNorm) || 
+               temaNorm.includes(duvidaNorm) ||
+               // Check for word overlap
+               duvidaNorm.split(' ').some(word => 
+                 word.length > 3 && temaNorm.includes(word)
+               );
+      });
+    }).length;
+    
+    if (temasMatch > 0) {
+      score += (temasMatch / respostasDuvidas.length) * 25;
+    }
+  }
   maxScore += 25;
 
-  return Math.round((score / maxScore) * 100);
+  // Calculate final percentage
+  const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+  
+  // Debug logging (only in development)
+  console.log('Match calculation:', {
+    respostasAreas,
+    conselheiroAreas,
+    nivelViajante,
+    nivelConselheiro,
+    estiloViajante: respostas.estiloConselheiro,
+    estiloConselheiro: conselheiro.estilo,
+    score,
+    maxScore,
+    percentage
+  });
+  
+  return percentage;
 };
 
 export const encontrarMelhorConselheiro = (

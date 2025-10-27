@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, UserCheck, Briefcase, TrendingUp, Edit, Ban, CheckCircle, LogOut } from "lucide-react";
+import { Users, UserCheck, Briefcase, TrendingUp, Edit, Ban, CheckCircle, LogOut, UserPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { calcularCompatibilidade } from "@/lib/matching";
 
@@ -48,9 +48,13 @@ interface Conselheiro {
 }
 
 interface Match {
+  id?: string;
   viajante: Viajante;
   conselheiro: Conselheiro;
   score: number;
+  status?: string;
+  criado_por?: string;
+  notas_admin?: string;
 }
 
 const Admin = () => {
@@ -63,6 +67,9 @@ const Admin = () => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [editType, setEditType] = useState<"viajante" | "conselheiro" | null>(null);
+  const [showManualMatchDialog, setShowManualMatchDialog] = useState(false);
+  const [selectedViajante, setSelectedViajante] = useState<string>("");
+  const [selectedConselheiro, setSelectedConselheiro] = useState<string>("");
 
   useEffect(() => {
     checkAdminAccess();
@@ -120,8 +127,8 @@ const Admin = () => {
       if (conselheirosError) throw conselheirosError;
       setConselheiros(conselheirosData || []);
 
-      // Calculate suggested matches
-      calculateMatches(viajantesData || [], conselheirosData || []);
+      // Load existing matches from database
+      await loadMatches(viajantesData || [], conselheirosData || []);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
       toast.error("Erro ao carregar dados do painel");
@@ -130,12 +137,41 @@ const Admin = () => {
     }
   };
 
-  const calculateMatches = async (viajantesList: Viajante[], conselheirosList: Conselheiro[]) => {
+  const loadMatches = async (viajantesList: Viajante[], conselheirosList: Conselheiro[]) => {
     try {
-      const suggestedMatches: Match[] = [];
+      // Load saved matches from database
+      const { data: savedMatches, error: matchError } = await supabase
+        .from("matches")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      for (const viajante of viajantesList.filter((v) => v.status === "active")) {
-        // Get viajante's diagnostico respostas
+      if (matchError) throw matchError;
+
+      // Create match objects with full viajante and conselheiro data
+      const matchesWithData: Match[] = (savedMatches || [])
+        .map((match) => {
+          const viajante = viajantesList.find((v) => v.id === match.viajante_id);
+          const conselheiro = conselheirosList.find((c) => c.id === match.conselheiro_id);
+          
+          if (viajante && conselheiro) {
+            return {
+              id: match.id,
+              viajante,
+              conselheiro,
+              score: match.score,
+              status: match.status,
+              criado_por: match.criado_por,
+              notas_admin: match.notas_admin,
+            };
+          }
+          return null;
+        })
+        .filter((m) => m !== null) as Match[];
+
+      // Also calculate suggested matches for viajantes without matches
+      const viajantesComMatch = new Set(matchesWithData.map(m => m.viajante.id));
+      
+      for (const viajante of viajantesList.filter((v) => v.status === "active" && !viajantesComMatch.has(v.id))) {
         const { data: respostasData } = await supabase
           .from("diagnostico_respostas")
           .select("respostas")
@@ -148,21 +184,24 @@ const Admin = () => {
         if (respostasData?.respostas) {
           const respostas = respostasData.respostas as any;
           
-          // Find best match
           let bestMatch: Match | null = null;
           let bestScore = 0;
 
           for (const conselheiro of conselheirosList.filter((c) => c.status === "active")) {
             const conselheiroFormatted = {
               id: conselheiro.id,
-              nome_completo: conselheiro.nome_completo,
+              nome: conselheiro.nome_completo,
+              foto_url: "",
+              mini_bio: "",
               areas: conselheiro.areas_atuacao || [],
-              nivel_experiencia: conselheiro.anos_experiencia > 10 ? "avancado" : conselheiro.anos_experiencia > 5 ? "intermediario" : "iniciante",
-              estilo: conselheiro.arquetipo || "",
+              nivel_experiencia: conselheiro.anos_experiencia >= 10 ? "avancado" : conselheiro.anos_experiencia >= 5 ? "intermediario" : "iniciante",
+              publicos_apoio: [],
               temas_preferidos: conselheiro.areas_atuacao || [],
+              estilo: conselheiro.arquetipo || "",
+              formato: "",
             };
 
-            const score = calcularCompatibilidade(respostas, conselheiroFormatted as any);
+            const score = calcularCompatibilidade(respostas, conselheiroFormatted);
             
             if (score > bestScore) {
               bestScore = score;
@@ -170,19 +209,91 @@ const Admin = () => {
                 viajante,
                 conselheiro,
                 score,
+                criado_por: "sugestao",
               };
             }
           }
 
           if (bestMatch && bestScore >= 60) {
-            suggestedMatches.push(bestMatch);
+            matchesWithData.push(bestMatch);
           }
         }
       }
 
-      setMatches(suggestedMatches);
+      setMatches(matchesWithData);
     } catch (error) {
-      console.error("Error calculating matches:", error);
+      console.error("Error loading matches:", error);
+    }
+  };
+
+  const createManualMatch = async () => {
+    if (!selectedViajante || !selectedConselheiro) {
+      toast.error("Selecione um viajante e um conselheiro");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("matches")
+        .insert({
+          viajante_id: selectedViajante,
+          conselheiro_id: selectedConselheiro,
+          score: 100,
+          status: "pendente",
+          criado_por: "manual",
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.error("Este match já existe");
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      toast.success("Match manual criado com sucesso!");
+      setShowManualMatchDialog(false);
+      setSelectedViajante("");
+      setSelectedConselheiro("");
+      loadDashboardData();
+    } catch (error) {
+      console.error("Error creating manual match:", error);
+      toast.error("Erro ao criar match manual");
+    }
+  };
+
+  const deleteMatch = async (matchId: string) => {
+    try {
+      const { error } = await supabase
+        .from("matches")
+        .delete()
+        .eq("id", matchId);
+
+      if (error) throw error;
+
+      toast.success("Match removido");
+      loadDashboardData();
+    } catch (error) {
+      console.error("Error deleting match:", error);
+      toast.error("Erro ao remover match");
+    }
+  };
+
+  const updateMatchStatus = async (matchId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from("matches")
+        .update({ status: newStatus })
+        .eq("id", matchId);
+
+      if (error) throw error;
+
+      toast.success("Status do match atualizado");
+      loadDashboardData();
+    } catch (error) {
+      console.error("Error updating match status:", error);
+      toast.error("Erro ao atualizar status");
     }
   };
 
@@ -456,9 +567,15 @@ const Admin = () => {
           {/* Matches Tab */}
           <TabsContent value="matches">
             <Card>
-              <CardHeader>
-                <CardTitle>Matches Sugeridos</CardTitle>
-                <CardDescription>Sugestões automáticas baseadas em compatibilidade</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Matches</CardTitle>
+                  <CardDescription>Matches manuais e sugestões automáticas</CardDescription>
+                </div>
+                <Button onClick={() => setShowManualMatchDialog(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Criar Match Manual
+                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -467,12 +584,15 @@ const Admin = () => {
                       <TableHead>Viajante</TableHead>
                       <TableHead>Conselheiro</TableHead>
                       <TableHead>Score</TableHead>
-                      <TableHead>Áreas em Comum</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Áreas</TableHead>
+                      <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {matches.map((match, index) => (
-                      <TableRow key={index}>
+                      <TableRow key={match.id || index}>
                         <TableCell className="font-medium">{match.viajante.nome_completo}</TableCell>
                         <TableCell>{match.conselheiro.nome_completo}</TableCell>
                         <TableCell>
@@ -481,13 +601,62 @@ const Admin = () => {
                             {match.score}%
                           </Badge>
                         </TableCell>
+                        <TableCell>
+                          <Badge variant={match.criado_por === "manual" ? "default" : "outline"}>
+                            {match.criado_por === "manual" ? "Manual" : "Sugestão"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {match.id && match.criado_por !== "sugestao" ? (
+                            <Select
+                              value={match.status}
+                              onValueChange={(value) => match.id && updateMatchStatus(match.id, value)}
+                            >
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pendente">Pendente</SelectItem>
+                                <SelectItem value="em_contato">Em Contato</SelectItem>
+                                <SelectItem value="conversa_realizada">Realizada</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
                         <TableCell>{match.conselheiro.areas_atuacao?.join(", ")}</TableCell>
+                        <TableCell>
+                          {match.id && match.criado_por !== "sugestao" ? (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => match.id && deleteMatch(match.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            match.criado_por === "sugestao" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedViajante(match.viajante.id);
+                                  setSelectedConselheiro(match.conselheiro.id);
+                                  setShowManualMatchDialog(true);
+                                }}
+                              >
+                                Criar
+                              </Button>
+                            )
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                     {matches.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground">
-                          Nenhum match encontrado com score acima de 60%
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          Nenhum match encontrado
                         </TableCell>
                       </TableRow>
                     )}
@@ -544,6 +713,57 @@ const Admin = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Manual Match Dialog */}
+      <Dialog open={showManualMatchDialog} onOpenChange={setShowManualMatchDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Criar Match Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Viajante</Label>
+              <Select value={selectedViajante} onValueChange={setSelectedViajante}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um viajante" />
+                </SelectTrigger>
+                <SelectContent>
+                  {viajantes
+                    .filter((v) => v.status === "active")
+                    .map((viajante) => (
+                      <SelectItem key={viajante.id} value={viajante.id}>
+                        {viajante.nome_completo}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Conselheiro</Label>
+              <Select value={selectedConselheiro} onValueChange={setSelectedConselheiro}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um conselheiro" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conselheiros
+                    .filter((c) => c.status === "active")
+                    .map((conselheiro) => (
+                      <SelectItem key={conselheiro.id} value={conselheiro.id}>
+                        {conselheiro.nome_completo}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowManualMatchDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={createManualMatch}>Criar Match</Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
