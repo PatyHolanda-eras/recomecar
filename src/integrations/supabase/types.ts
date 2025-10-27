@@ -174,6 +174,57 @@ export type Database = {
         }
         Relationships: []
       }
+      matches: {
+        Row: {
+          conselheiro_id: string
+          created_at: string
+          criado_por: string
+          id: string
+          notas_admin: string | null
+          score: number
+          status: string
+          updated_at: string
+          viajante_id: string
+        }
+        Insert: {
+          conselheiro_id: string
+          created_at?: string
+          criado_por?: string
+          id?: string
+          notas_admin?: string | null
+          score?: number
+          status?: string
+          updated_at?: string
+          viajante_id: string
+        }
+        Update: {
+          conselheiro_id?: string
+          created_at?: string
+          criado_por?: string
+          id?: string
+          notas_admin?: string | null
+          score?: number
+          status?: string
+          updated_at?: string
+          viajante_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_conselheiro_id_fkey"
+            columns: ["conselheiro_id"]
+            isOneToOne: false
+            referencedRelation: "conselheiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_viajante_id_fkey"
+            columns: ["viajante_id"]
+            isOneToOne: false
+            referencedRelation: "viajantes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
