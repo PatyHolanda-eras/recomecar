@@ -23,7 +23,7 @@ const TOTAL_STEPS = 6;
 const Diagnostico = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [respostas, setRespostas] = useState<Partial<DiagnosticoRespostas>>({
     areas: [],
     duvidas: [],
@@ -37,7 +37,7 @@ const Diagnostico = () => {
   }, [user, loading, navigate]);
 
   const handleNext = async () => {
-    if (step < TOTAL_STEPS) {
+    if (step < TOTAL_STEPS - 1) {
       setStep(step + 1);
     } else {
       // Validate before submission
@@ -104,7 +104,7 @@ const Diagnostico = () => {
   };
 
   const handlePrev = () => {
-    if (step > 1) {
+    if (step > 0) {
       setStep(step - 1);
     }
   };
@@ -123,17 +123,17 @@ const Diagnostico = () => {
 
   const isStepValid = () => {
     switch (step) {
-      case 1:
+      case 0:
         return !!respostas.objetivo;
-      case 2:
+      case 1:
         return (respostas.areas?.length || 0) > 0;
-      case 3:
+      case 2:
         return !!respostas.nivel;
-      case 4:
+      case 3:
         return (respostas.duvidas?.length || 0) > 0;
-      case 5:
+      case 4:
         return (respostas.tipoApoio?.length || 0) > 0;
-      case 6:
+      case 5:
         return !!respostas.estiloConselheiro;
       default:
         return false;
@@ -163,7 +163,7 @@ const Diagnostico = () => {
           <CardContent className="px-8 pb-8">
             <AnimatePresence mode="wait">
               {/* Etapa 1: Objetivo Principal */}
-              {step === 1 && (
+              {step === 0 && (
                 <WizardStep
                   key="step1"
                   onNext={handleNext}
@@ -197,7 +197,7 @@ const Diagnostico = () => {
               )}
 
               {/* Etapa 2: Áreas de Interesse */}
-              {step === 2 && (
+              {step === 1 && (
                 <WizardStep
                   key="step2"
                   onNext={handleNext}
@@ -237,7 +237,7 @@ const Diagnostico = () => {
               )}
 
               {/* Etapa 3: Nível de Experiência */}
-              {step === 3 && (
+              {step === 2 && (
                 <WizardStep
                   key="step3"
                   onNext={handleNext}
@@ -271,7 +271,7 @@ const Diagnostico = () => {
               )}
 
               {/* Etapa 4: Principais Desafios */}
-              {step === 4 && (
+              {step === 3 && (
                 <WizardStep
                   key="step4"
                   onNext={handleNext}
@@ -310,7 +310,7 @@ const Diagnostico = () => {
               )}
 
               {/* Etapa 5: Tipo de Apoio */}
-              {step === 5 && (
+              {step === 4 && (
                 <WizardStep
                   key="step5"
                   onNext={handleNext}
@@ -344,7 +344,7 @@ const Diagnostico = () => {
               )}
 
               {/* Etapa 6: Estilo de Conselheiro */}
-              {step === 6 && (
+              {step === 5 && (
                 <WizardStep
                   key="step6"
                   onNext={handleNext}
